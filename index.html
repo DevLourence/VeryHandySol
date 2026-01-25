@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="cYHi8vUq31lpMvwET--fYXT9bWCoUluJzB4LBIscM_U" />
+    <title>VH Autoglass | Mobile Windshield Replacement</title>
+    <link rel="icon" href="image/logo/vh_logo.png" type="image/png">
+    <link rel="canonical" href="https://vhautoglass.com/" />
+    <meta name="description"
+        content="VH Autoglass provides professional mobile windshield replacement and autoglass repair services. Fast, convenient, and reliable quality you can trust.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        purple: {
+                            50: '#f3e5f5',
+                            100: '#e1bee7',
+                            200: '#ce93d8',
+                            300: '#ba68c8',
+                            400: '#ab47bc',
+                            500: '#9c27b0',
+                            600: '#4a148c', // Deep Purple - Brand Primary
+                            700: '#38006b',
+                            800: '#280050',
+                            900: '#1a0033',
+                        },
+                        amber: {
+                            400: '#ffd700', // Golden Yellow - Brand Secondary
+                            500: '#ffc400',
+                            600: '#ffb300',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Supabase Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 overflow-x-hidden font-sans">
+    <div class="grain-overlay"></div>
+    <div id="scroll-progress"></div>
+
+
+
+    <!-- Background Decorations -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-[-1]">
+        <div class="absolute -top-24 -left-24 w-96 h-96 bg-purple-200/20 blur-[120px] rounded-full"></div>
+        <div class="absolute top-1/2 -right-24 w-[500px] h-[500px] bg-amber-100/20 blur-[120px] rounded-full"></div>
+        <div class="absolute -bottom-24 left-1/4 w-80 h-80 bg-purple-300/10 blur-[100px] rounded-full"></div>
+    </div>
+
+    <!-- Floating Social Stack -->
+    <div class="fixed bottom-8 right-8 z-[90] flex flex-col gap-4 items-center">
+        <!-- TikTok -->
+        <a href="https://www.tiktok.com/@yolo75871" target="_blank"
+            class="w-16 h-16 bg-[#000000] text-white rounded-2xl flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all group relative">
+            <i class="fa-brands fa-tiktok text-2xl"></i>
+            <span
+                class="absolute right-full mr-4 bg-white text-black text-[8px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-xl border border-black/5 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">TikTok</span>
+            <span
+                class="absolute -top-2 -left-2 bg-white text-black text-[7px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-tighter shadow-sm border border-black/10">Follow</span>
+        </a>
+
+        <!-- WhatsApp -->
+        <a href="https://api.whatsapp.com/send?phone=14035971220" target="_blank"
+            class="w-16 h-16 bg-[#25D366] text-white rounded-2xl flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all group relative">
+            <i class="fa-brands fa-whatsapp text-3xl"></i>
+            <span
+                class="absolute right-full mr-4 bg-white text-[#25D366] text-[8px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-xl border border-[#25D366]/5 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">WhatsApp</span>
+            <span
+                class="absolute -top-2 -left-2 bg-white text-[#25D366] text-[7px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-tighter shadow-sm border border-[#25D366]/10">Chat</span>
+        </a>
+
+        <!-- Facebook -->
+        <a href="https://www.facebook.com/profile.php?id=61576195003890" target="_blank"
+            class="w-16 h-16 bg-[#1877f2] text-white rounded-2xl flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all animate-bounce floating-contact group relative">
+            <i class="fa-brands fa-facebook-f text-2xl"></i>
+            <span
+                class="absolute right-full mr-4 bg-white text-[#1877f2] text-[8px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-xl border border-[#1877f2]/5 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Facebook</span>
+            <span
+                class="absolute -top-2 -left-2 bg-white text-[#1877f2] text-[7px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-tighter shadow-sm border border-[#1877f2]/10">Our
+                Page</span>
+        </a>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+        class="fixed bottom-24 left-8 z-[90] w-12 h-12 bg-white/80 backdrop-blur-md text-slate-600 border border-slate-200 rounded-2xl flex items-center justify-center shadow-xl hover:bg-purple-600 hover:text-white transition-all opacity-0 invisible">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+
+
+
+    <!-- PREMIUM LIGHTBOX -->
+    <div id="lightbox-modal" class="modal-overlay" onclick="closeLightbox()">
+        <button class="lightbox-close" onclick="closeLightbox()">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="relative z-10 p-6 flex items-center justify-center w-full h-full" onclick="event.stopPropagation()">
+            <img id="lightbox-img" src="" class="max-h-[85vh] max-w-[90vw] object-contain">
+        </div>
+    </div>
+
+    <nav
+        class="glass-morph fixed w-full z-50 border-b border-white/20 px-4 md:px-6 py-2 flex justify-between items-center">
+        <div class="flex items-center space-x-2 md:space-x-4 cursor-pointer" onclick="showView('landing')">
+            <div
+                class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-transparent overflow-hidden flex items-center justify-center">
+                <img src="image/logo/vh_logo.png" alt="Logo" class="w-full h-full object-contain scale-125">
+            </div>
+            <div
+                class="text-xl md:text-2xl font-black text-purple-600 tracking-tighter uppercase whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px] md:max-w-none">
+                <span class="hidden md:inline">VH Autoglass</span>
+                <span class="md:hidden">VH Autoglass</span>
+            </div>
+        </div>
+        <div>
+            <button id="nav-login-btn" onclick="showView('login')"
+                class="bg-purple-600 text-white px-4 md:px-6 py-2 rounded-full text-xs md:text-sm font-bold shadow-lg hover:bg-purple-700 transition uppercase tracking-widest hover:scale-105">Login</button>
+        </div>
+    </nav>
+
+    <section id="view-landing" class="view active">
+        <div id="hero"
+            class="h-screen relative flex items-center justify-center text-center px-4 md:px-6 bg-cover bg-center bg-no-repeat"
+            style="background-image: url('image/hero_bg_clean.png');">
+            <div class="absolute inset-0 bg-slate-900/60 z-0"></div>
+            <div class="max-w-4xl text-white z-10">
+                <h1 class="text-4xl sm:text-6xl md:text-9xl font-black leading-none mb-8 uppercase tracking-tighter"
+                    style="-webkit-text-stroke: 2px white;">
+                    <span class="text-purple-600">VH</span> <br>
+                    <span class="text-amber-400">Autoglass</span>
+                </h1>
+                <p
+                    class="animate-float text-lg md:text-2xl text-slate-100 mb-8 md:mb-10 font-bold text-shadow tracking-wide">
+                    We specialize in windshield replacement and repair, performed directly at your home or location.
+                    Fast, convenient, and professional.
+                </p>
+                <div class="cta-buttons flex flex-col sm:flex-row justify-center gap-3 md:gap-4">
+                    <button onclick="document.getElementById('expert-services').scrollIntoView({behavior:'smooth'})"
+                        class="bg-white text-purple-600 px-8 md:px-10 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-lg md:text-xl shadow-xl hover:bg-slate-100 transition btn-magnetic">Our
+                        Services</button>
+                    <button id="hero-book-btn" onclick="showView('login')"
+                        class="btn-pulse bg-purple-600 hover:bg-purple-700 px-8 md:px-10 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-lg md:text-xl shadow-xl transition transform btn-magnetic">Book
+                        Now</button>
+                </div>
+
+                <div class="mt-12 flex justify-center items-center gap-6 opacity-80 overflow-hidden">
+                    <div class="flex -space-x-4">
+                        <div class="w-10 h-10 rounded-full border-2 border-white bg-slate-200"></div>
+                        <div class="w-10 h-10 rounded-full border-2 border-white bg-slate-300"></div>
+                        <div class="w-10 h-10 rounded-full border-2 border-white bg-slate-400"></div>
+                    </div>
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-300">Join 500+ Happy Customers
+                        locally</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trust Badges Row -->
+        <div class="bg-white/50 backdrop-blur-xl border-y border-slate-100 py-10 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-6">
+                <div
+                    class="flex flex-wrap justify-center md:justify-between items-center gap-10 opacity-70 grayscale hover:grayscale-0 transition-all duration-700">
+                    <div class="flex items-center gap-3 badge-float" style="animation-delay: 0.1s">
+                        <i class="fa-solid fa-certificate text-purple-600 text-2xl"></i>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-600">Certified
+                            Techs</span>
+                    </div>
+                    <div class="flex items-center gap-3 badge-float" style="animation-delay: 0.3s">
+                        <i class="fa-solid fa-gem text-amber-500 text-2xl"></i>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-600">OEM Quality
+                            Glass</span>
+                    </div>
+                    <div class="flex items-center gap-3 badge-float" style="animation-delay: 0.5s">
+                        <i class="fa-solid fa-shield-virus text-purple-600 text-2xl"></i>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-600">Fully
+                            Insured</span>
+                    </div>
+                    <div class="flex items-center gap-3 badge-float" style="animation-delay: 0.7s">
+                        <i class="fa-solid fa-tag text-emerald-500 text-2xl"></i>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-600">Best Rates
+                            Guarenteed</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- How It Works Section -->
+        <section id="process" class="py-24 bg-white relative">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-16" data-aos="fade-up">
+                    <span
+                        class="px-4 py-1.5 rounded-full bg-amber-100 text-amber-700 font-black text-[10px] uppercase tracking-[0.3em] mb-4 inline-block">Simple
+                        Process</span>
+                    <h2 class="text-5xl font-black text-slate-800 uppercase tracking-tighter">How It Works</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <!-- Step 1 -->
+                    <div class="text-center group" data-aos="fade-up" data-aos-delay="100">
+                        <div class="relative inline-block mb-8">
+                            <div
+                                class="w-24 h-24 bg-purple-50 rounded-[35px] flex items-center justify-center text-3xl text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-all duration-500 shadow-xl group-hover:rotate-12">
+                                <i class="fa-solid fa-calendar-alt"></i>
+                            </div>
+                            <span
+                                class="absolute -top-4 -right-4 w-10 h-10 bg-slate-900 text-white rounded-full flex items-center justify-center font-black text-sm border-4 border-white">01</span>
+                        </div>
+                        <h3 class="text-2xl font-black text-slate-800 mb-4 uppercase tracking-tight">Easy Booking</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed max-w-xs mx-auto">Click "Book Now" or call us
+                            to schedule your service. We'll confirm the details instantly.</p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="text-center group" data-aos="fade-up" data-aos-delay="200">
+                        <div class="relative inline-block mb-8">
+                            <div
+                                class="w-24 h-24 bg-amber-50 rounded-[35px] flex items-center justify-center text-3xl text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-all duration-500 shadow-xl group-hover:-rotate-12">
+                                <i class="fa-solid fa-truck-fast"></i>
+                            </div>
+                            <span
+                                class="absolute -top-4 -right-4 w-10 h-10 bg-slate-900 text-white rounded-full flex items-center justify-center font-black text-sm border-4 border-white">02</span>
+                        </div>
+                        <h3 class="text-2xl font-black text-slate-800 mb-4 uppercase tracking-tight">Mobile Mission</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed max-w-xs mx-auto">Our fully equipped mobile
+                            unit arrives at your home, office, or anywhere in your area.</p>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="text-center group" data-aos="fade-up" data-aos-delay="300">
+                        <div class="relative inline-block mb-8">
+                            <div
+                                class="w-24 h-24 bg-emerald-50 rounded-[35px] flex items-center justify-center text-3xl text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500 shadow-xl group-hover:rotate-12">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                            <span
+                                class="absolute -top-4 -right-4 w-10 h-10 bg-slate-900 text-white rounded-full flex items-center justify-center font-black text-sm border-4 border-white">03</span>
+                        </div>
+                        <h3 class="text-2xl font-black text-slate-800 mb-4 uppercase tracking-tight">Rapid Finish</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed max-w-xs mx-auto">Most repairs are done in
+                            under an hour. You're safe to drive away with premium results.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div id="expert-services" class="bg-slate-50 py-24 px-6">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-16" data-aos="fade-up">
+                    <h2
+                        class="text-4xl font-black uppercase tracking-widest text-slate-800 underline decoration-purple-600 decoration-8 underline-offset-8 mb-4">
+                        Our Services
+                    </h2>
+                    <p class="text-slate-500 max-w-2xl mx-auto">Professional auto care solutions delivered directly to
+                        your location.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 view-section">
+                    <!-- 1. Windshield Replacement -->
+                    <div class="group glass-card p-6 rounded-3xl transition-all duration-300" data-aos="fade-up"
+                        data-aos-delay="100">
+                        <div
+                            class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 mb-4 text-xl group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
+                            <i class="fa-solid fa-car-burst"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2 text-slate-800 group-hover:text-purple-600 transition-colors">
+                            Windshield Replacement</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed">OEM-quality glass replacement performed
+                            on-site for your convenience and safety.</p>
+                    </div>
+
+                    <!-- 2. Rock Chip Repair -->
+                    <div class="group glass-card p-6 rounded-3xl transition-all duration-300" data-aos="fade-up"
+                        data-aos-delay="150">
+                        <div
+                            class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 mb-4 text-xl group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2 text-slate-800 group-hover:text-purple-600 transition-colors">
+                            Rock Chip Repair</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed">Fast, professional resin injection to stop
+                            chips from cracking further.</p>
+                    </div>
+
+                    <!-- 3. Side & Rear Glass -->
+                    <div class="group glass-card p-6 rounded-3xl transition-all duration-300" data-aos="fade-up"
+                        data-aos-delay="200">
+                        <div
+                            class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 mb-4 text-xl group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2 text-slate-800 group-hover:text-purple-600 transition-colors">
+                            Side & Rear Glass</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed">Expert replacement for broken side windows and
+                            rear windshields.</p>
+                    </div>
+
+                    <!-- 4. Headlight Restoration -->
+                    <div class="group glass-card p-6 rounded-3xl transition-all duration-300" data-aos="fade-up"
+                        data-aos-delay="250">
+                        <div
+                            class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 mb-4 text-xl group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
+                            <i class="fa-solid fa-lightbulb"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2 text-slate-800 group-hover:text-purple-600 transition-colors">
+                            Headlight Restoration</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed">Restore clarity and brightness to cloudy
+                            headlights for better night visibility.</p>
+                    </div>
+
+                    <!-- 5. Detailing & Polishing -->
+                    <div class="group glass-card p-6 rounded-3xl transition-all duration-300" data-aos="fade-up"
+                        data-aos-delay="300">
+                        <div
+                            class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 mb-4 text-xl group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
+                            <i class="fa-solid fa-sparkles"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2 text-slate-800 group-hover:text-purple-600 transition-colors">
+                            Detailing & Polishing</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed">Complete interior and exterior detailing
+                            options to make your car shine.</p>
+                    </div>
+
+                    <!-- 6. Ceramic Coating -->
+                    <div class="group glass-card p-6 rounded-3xl transition-all duration-300" data-aos="fade-up"
+                        data-aos-delay="350">
+                        <div
+                            class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 mb-4 text-xl group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2 text-slate-800 group-hover:text-purple-600 transition-colors">
+                            Ceramic Coating</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed">Ultimate protection for your paint against
+                            elements, scratches, and fading.</p>
+                    </div>
+
+                    <!-- 7. Tire Installation -->
+                    <div class="group glass-card p-6 rounded-3xl transition-all duration-300" data-aos="fade-up"
+                        data-aos-delay="400">
+                        <div
+                            class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 mb-4 text-xl group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
+                            <i class="fa-solid fa-dharmachakra"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2 text-slate-800 group-hover:text-purple-600 transition-colors">
+                            Tire Installation</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed">Professional tire mounting and installation
+                            services to keep you rolling safely.</p>
+                    </div>
+
+                    <!-- 8. Flat Repair -->
+                    <div class="group glass-card p-6 rounded-3xl transition-all duration-300" data-aos="fade-up"
+                        data-aos-delay="450">
+                        <div
+                            class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 mb-4 text-xl group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
+                            <i class="fa-solid fa-wrench"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2 text-slate-800 group-hover:text-purple-600 transition-colors">
+                            Flat Repair</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed">Quick and reliable mobile flat tire repair to
+                            get you back on the road.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section id="recent-projects" class="py-24 bg-slate-50 relative overflow-hidden">
+            <div class="container mx-auto px-6 relative z-10">
+                <div class="text-center mb-16" data-aos="fade-up">
+                    <span
+                        class="inline-block px-4 py-1.5 rounded-full bg-purple-100 text-purple-600 font-black text-[10px] uppercase tracking-[0.3em] mb-4">Portfolio</span>
+                    <h2 class="text-5xl font-black text-slate-800 uppercase tracking-tighter mb-6">Recent Work Mastery
+                    </h2>
+                    <p class="text-slate-500 text-lg max-w-2xl mx-auto font-medium leading-relaxed">Explore our latest
+                        successful transformations and maintenance projects across the region.</p>
+                </div>
+
+                <div id="project-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                </div>
+
+                <div id="project-pagination" class="flex justify-center items-center gap-3 mt-16" data-aos="fade-up">
+                </div>
+            </div>
+        </section>
+
+        <section id="testimonials" class="py-24 bg-slate-50/50 border-t border-slate-100 relative">
+            <div class="container mx-auto px-6 relative z-10">
+                <div class="text-center mb-16" data-aos="fade-up">
+                    <span
+                        class="inline-block px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 font-black text-[10px] uppercase tracking-[0.3em] mb-4 border border-emerald-100">Verified
+                        Feedback</span>
+                    <h2 class="text-5xl font-black text-slate-800 uppercase tracking-tighter">Client Satisfaction</h2>
+                    <p
+                        class="text-slate-400 text-sm font-jakarta font-bold uppercase tracking-[0.2em] mt-4 opacity-60 italic">
+                        "Quality Service, Guaranteed Results"</p>
+                </div>
+                <div id="testimonials-container" class="grid grid-cols-1 md:grid-cols-3 gap-8 view-section">
+                </div>
+            </div>
+        </section>
+
+        <!-- Location Section -->
+        <section id="location-map" class="py-24 bg-slate-50 border-t border-slate-100">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16" data-aos="fade-up">
+                    <span
+                        class="inline-block px-4 py-1.5 rounded-full bg-purple-100 text-purple-600 font-black text-[10px] uppercase tracking-[0.3em] mb-4 border border-purple-200">Find
+                        Us</span>
+                    <h2 class="text-4xl font-black text-slate-800 uppercase tracking-tighter">Our Location</h2>
+                    <p class="text-slate-500 text-lg max-w-2xl mx-auto font-medium leading-relaxed mt-4">Visit us at our
+                        location or we'll come to you with our mobile service.</p>
+                </div>
+
+                <div class="max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="100">
+                    <div class="bg-white rounded-3xl shadow-lg border border-slate-200 overflow-hidden">
+                        <!-- Google Maps Embed -->
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2393.8847890123456!2d-113.8234567!3d52.2654321!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x537177d8c8c8c8c8%3A0x1234567890abcdef!2sUnit%207B%2C%207491%2049th%20Avenue%2C%20AB%20T4P%201M3!5e0!3m2!1sen!2sca!4v1234567890123!5m2!1sen!2sca"
+                            width="100%" height="500" style="border:0;" allowfullscreen="" loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade" class="w-full">
+                        </iframe>
+                    </div>
+                    <div class="text-center mt-8 space-y-4">
+                        <a href="https://maps.app.goo.gl/y1L8Xzdocnj2j6e7A" target="_blank" rel="noopener noreferrer"
+                            class="inline-flex items-center gap-2 bg-purple-600 text-white px-8 py-4 rounded-2xl font-black text-sm shadow-lg hover:bg-purple-700 transition-all transform hover:scale-105 uppercase tracking-widest">
+                            <i class="fa-solid fa-location-dot"></i>
+                            Get Directions
+                        </a>
+                        <div>
+                            <a href="https://www.facebook.com/profile.php?id=61576195003890" target="_blank"
+                                rel="noopener noreferrer"
+                                class="inline-flex items-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-2xl font-black text-sm shadow-lg hover:bg-blue-700 transition-all transform hover:scale-105 uppercase tracking-widest">
+                                <i class="fa-brands fa-facebook"></i>
+                                Follow Us on Facebook
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final CTA Banner -->
+        <section class="py-24 px-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="glass-morph rounded-[50px] p-12 md:p-24 text-center relative overflow-hidden shadow-2xl border-white/30"
+                    data-aos="zoom-in">
+                    <div class="absolute -top-24 -right-24 w-96 h-96 bg-purple-500/20 blur-[100px] rounded-full"></div>
+                    <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-amber-500/20 blur-[100px] rounded-full"></div>
+
+                    <div class="relative z-10">
+                        <h2
+                            class="text-4xl md:text-7xl font-black text-slate-800 uppercase tracking-tighter mb-8 leading-none">
+                            Ready to Restore <br>Your <span class="text-purple-600">Vision?</span>
+                        </h2>
+                        <p class="text-slate-500 text-lg md:text-xl mb-12 max-w-2xl mx-auto font-medium">Join hundreds
+                            of satisfied drivers who chose the precision and convenience of VH Autoglass.
+                        </p>
+                        <div class="flex justify-center">
+                            <button onclick="showView('login')"
+                                class="bg-purple-600 text-white px-12 py-5 rounded-2xl font-black text-lg shadow-2xl hover:bg-slate-900 transition-all transform hover:scale-110 uppercase tracking-widest">
+                                Book Your Mission
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+
+    <!-- Auth Section -->
+    <section id="view-login" class="view" onclick="showView('landing')">
+        <div class="auth-card w-full max-w-md p-6 md:p-8 relative max-h-[90vh] overflow-y-auto"
+            onclick="event.stopPropagation()">
+            <button onclick="showView('landing')"
+                class="absolute top-6 right-6 text-slate-300 hover:text-purple-600 transition text-3xl font-light">&times;</button>
+
+
+
+            <!-- Sign In Form -->
+            <div id="form-signin" class="space-y-6">
+                <div class="flex border-b border-slate-100 mb-8">
+                    <button onclick="toggleAuthMode('signin')"
+                        class="flex-1 pb-4 text-xs font-black uppercase tracking-[0.2em] border-b-2 border-purple-600 text-purple-600">Sign
+                        In</button>
+                    <button onclick="toggleAuthMode('signup')"
+                        class="flex-1 pb-4 text-xs font-black uppercase tracking-[0.2em] border-b-2 border-transparent text-slate-400">Sign
+                        Up</button>
+                </div>
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight">Welcome Back</h2>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Access your account
+                    </p>
+                </div>
+                <form onsubmit="handleSignin(event)" class="space-y-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Email
+                            Address</label>
+                        <input type="email" id="signin-email" required
+                            class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-purple-500/5 focus:bg-white focus:border-purple-500 transition-all font-bold text-sm">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Security
+                            Password</label>
+                        <div class="relative">
+                            <input type="password" id="signin-password" required
+                                class="w-full px-6 py-4 pr-14 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-purple-500/5 focus:bg-white focus:border-purple-500 transition-all font-bold text-sm">
+                            <button type="button" onclick="togglePasswordVisibility('signin-password')"
+                                class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 hover:text-purple-600 transition">
+                                <i class="fa-solid fa-eye text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" id="signin-btn"
+                        class="w-full bg-purple-600 text-white font-black py-5 rounded-2xl shadow-xl shadow-purple-500/20 hover:bg-slate-900 transition-all transform hover:-translate-y-1 uppercase text-[10px] tracking-[0.2em]">
+                        Login
+                    </button>
+                </form>
+                <div class="text-center pt-4">
+                    <button onclick="toggleAuthMode('forgot')"
+                        class="text-[10px] font-black text-purple-600 uppercase tracking-widest hover:underline">Trouble
+                        Signing In?</button>
+                </div>
+            </div>
+
+            <!-- Sign Up Form -->
+            <div id="form-signup" class="space-y-6 hidden">
+                <div class="flex border-b border-slate-100 mb-8">
+                    <button onclick="toggleAuthMode('signin')"
+                        class="flex-1 pb-4 text-xs font-black uppercase tracking-[0.2em] border-b-2 border-transparent text-slate-400">Sign
+                        In</button>
+                    <button onclick="toggleAuthMode('signup')"
+                        class="flex-1 pb-4 text-xs font-black uppercase tracking-[0.2em] border-b-2 border-purple-600 text-purple-600">Sign
+                        Up</button>
+                </div>
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight">New Account</h2>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Join VH Autoglass</p>
+                </div>
+                <form id="signup-form" onsubmit="handleSignup(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Full
+                                Name</label>
+                            <input type="text" id="signup-name" required
+                                class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-purple-500/5 focus:bg-white focus:border-purple-500 transition-all font-bold text-sm">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Email
+                                Address</label>
+                            <input type="email" id="signup-email" required
+                                class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-purple-500/5 focus:bg-white focus:border-purple-500 transition-all font-bold text-sm">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label
+                                class="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Password</label>
+                            <div class="relative">
+                                <input type="password" id="signup-password" required
+                                    class="w-full px-6 py-4 pr-14 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-purple-500/5 focus:bg-white focus:border-purple-500 transition-all font-bold text-sm">
+                                <button type="button" onclick="togglePasswordVisibility('signup-password')"
+                                    class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 hover:text-purple-600 transition">
+                                    <i class="fa-solid fa-eye text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <label
+                                class="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Age</label>
+                            <input type="number" id="signup-age" required
+                                class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-purple-500/5 focus:bg-white focus:border-purple-500 transition-all font-bold text-sm">
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label
+                            class="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Address</label>
+                        <input type="text" id="signup-address" required
+                            class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-purple-500/5 focus:bg-white focus:border-purple-500 transition-all font-bold text-sm">
+                    </div>
+                    <button type="submit" id="signup-btn"
+                        class="w-full bg-purple-600 text-white font-black py-5 rounded-2xl shadow-xl shadow-purple-500/20 hover:bg-slate-900 transition-all transform hover:-translate-y-1 uppercase text-[10px] tracking-[0.2em] mt-4">
+                        Initialize Account
+                    </button>
+                </form>
+            </div>
+
+            <!-- OTP Verification View -->
+            <div id="view-otp" class="space-y-8 py-4 hidden">
+                <div class="text-center">
+                    <div
+                        class="w-16 h-16 bg-purple-50 rounded-3xl flex items-center justify-center text-purple-600 mx-auto mb-6 shadow-lg shadow-purple-500/10">
+                        <i class="fa-solid fa-envelope-open-text text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight">Verify Identity</h2>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 px-6">We've sent a
+                        6-digit code to <br><span id="pending-email"
+                            class="text-purple-600 lowercase font-black"></span>
+                    </p>
+                </div>
+                <div class="grid grid-cols-6 gap-2" id="otp-input-group">
+                    <input type="text" maxlength="1" class="otp-field w-full text-center font-black outline-none">
+                    <input type="text" maxlength="1" class="otp-field w-full text-center font-black outline-none">
+                    <input type="text" maxlength="1" class="otp-field w-full text-center font-black outline-none">
+                    <input type="text" maxlength="1" class="otp-field w-full text-center font-black outline-none">
+                    <input type="text" maxlength="1" class="otp-field w-full text-center font-black outline-none">
+                    <input type="text" maxlength="1" class="otp-field w-full text-center font-black outline-none">
+                </div>
+                <button onclick="verifySignupOtp()" id="otp-btn"
+                    class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl shadow-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] uppercase text-[10px] tracking-[0.2em] mt-4">
+                    Confirm Verification
+                </button>
+                <div class="text-center">
+                    <button onclick="resendSignupOtp()"
+                        class="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-purple-600 transition">Code
+                        not received? Resend Email</button>
+                </div>
+            </div>
+
+            <!-- Forgot Password Form -->
+            <div id="form-forgot" class="space-y-6 hidden">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight">Identity Recovery</h2>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Regain access to your
+                        account</p>
+                </div>
+                <form id="forgot-password-form" onsubmit="handleForgotPassword(event)" class="space-y-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Registered
+                            Email</label>
+                        <input type="email" id="forgot-email" required
+                            class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-purple-500/5 focus:bg-white focus:border-purple-500 transition-all font-bold text-sm">
+                    </div>
+                    <button type="submit" id="forgot-btn"
+                        class="w-full bg-purple-600 text-white font-black py-5 rounded-2xl shadow-xl shadow-purple-500/20 hover:bg-slate-900 transition-all transform hover:-translate-y-1 uppercase text-[10px] tracking-[0.2em]">
+                        Begin Recovery
+                    </button>
+                </form>
+                <div class="text-center">
+                    <button onclick="toggleAuthMode('signin')"
+                        class="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-purple-600 transition">Return
+                        to Sign In</button>
+                </div>
+            </div>
+
+            <!-- Reset OTP View -->
+            <div id="view-reset-otp" class="space-y-8 py-4 hidden">
+                <div class="text-center">
+                    <div
+                        class="w-16 h-16 bg-purple-50 rounded-3xl flex items-center justify-center text-purple-600 mx-auto mb-6 shadow-lg shadow-purple-500/10">
+                        <i class="fa-solid fa-key text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight">Security Code</h2>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 px-6">Enter the
+                        recovery
+                        code sent to <br><span id="pending-reset-email"
+                            class="text-purple-600 lowercase font-black"></span></p>
+                </div>
+                <div class="grid grid-cols-6 gap-2" id="reset-otp-input-group">
+                    <input type="text" maxlength="1" class="reset-otp-field w-full text-center font-black outline-none">
+                    <input type="text" maxlength="1" class="reset-otp-field w-full text-center font-black outline-none">
+                    <input type="text" maxlength="1" class="reset-otp-field w-full text-center font-black outline-none">
+                    <input type="text" maxlength="1" class="reset-otp-field w-full text-center font-black outline-none">
+                    <input type="text" maxlength="1" class="reset-otp-field w-full text-center font-black outline-none">
+                    <input type="text" maxlength="1" class="reset-otp-field w-full text-center font-black outline-none">
+                </div>
+                <button onclick="verifyResetOtp()" id="reset-otp-btn"
+                    class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl shadow-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] uppercase text-[10px] tracking-[0.2em] mt-4">
+                    Verify & Reset
+                </button>
+                <div class="text-center">
+                    <button onclick="resendResetOtp()"
+                        class="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-purple-600 transition">Problem?
+                        Request New Code</button>
+                </div>
+            </div>
+
+            <!-- Update Password Form -->
+            <div id="form-update-password" class="space-y-6 hidden">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight">Security Upgrade</h2>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Define your new
+                        password</p>
+                </div>
+                <form id="update-password-form" onsubmit="handleUpdatePassword(event)" class="space-y-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">New
+                            Password</label>
+                        <div class="relative">
+                            <input type="password" id="update-password" required
+                                class="w-full px-6 py-4 pr-14 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-purple-500/5 focus:bg-white focus:border-purple-500 transition-all font-bold text-sm">
+                            <button type="button" onclick="togglePasswordVisibility('update-password')"
+                                class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 hover:text-purple-600 transition">
+                                <i class="fa-solid fa-eye text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" id="update-btn"
+                        class="w-full bg-purple-600 text-white font-black py-5 rounded-2xl shadow-xl shadow-purple-500/20 hover:bg-slate-900 transition-all transform hover:-translate-y-1 uppercase text-[10px] tracking-[0.2em]">
+                        Apply Changes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-slate-900 text-slate-400 py-16 text-center relative">
+        <div class="absolute bottom-10 left-10 group cursor-pointer transition-all active:scale-90">
+            <i
+                class="fa-solid fa-chess-king text-lg opacity-10 group-hover:opacity-100 group-hover:text-purple-500 transition-all duration-500"></i>
+            <span
+                class="absolute left-8 top-1/2 -translate-y-1/2 text-[10px] font-black uppercase tracking-[0.4em] text-purple-500 opacity-0 group-hover:opacity-100 transition-all duration-500 whitespace-nowrap pointer-events-none">DevLourence</span>
+        </div>
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="flex justify-center items-center gap-4 mb-6">
+                <!-- New Logo -->
+                <div class="w-24 h-24 bg-transparent rounded-full flex items-center justify-center overflow-hidden">
+                    <img src="image/logo/vh_logo.png" alt="VH Logo" class="w-full h-full object-contain">
+                </div>
+                <!-- Original Logo -->
+                <div class="w-24 h-24 bg-transparent rounded-full flex items-center justify-center overflow-hidden">
+                    <img src="image/logo/logo.svg" alt="Original Logo" class="w-full h-full object-contain">
+                </div>
+            </div>
+            <h2 class="text-white text-2xl font-black mb-4 uppercase">VH Autoglass</h2>
+            <p class="mb-4 text-sm">Thank you for visiting VH Autoglass! We are dedicated to providing
+                quality craftsmanship and exceptional customer service.</p>
+            <div class="space-y-2 mb-8">
+                <p class="font-bold text-slate-500"><i class="fa-solid fa-location-dot mr-2 text-purple-500"></i>7491 49
+                    Ave, Red Deer, AB, Canada, Alberta</p>
+                <div class="font-bold text-slate-500 flex flex-col md:flex-row justify-center gap-2 md:gap-6">
+                    <span><i class="fa-solid fa-phone mr-2 text-purple-500"></i>403-597-1220</span>
+                    <span class="hidden md:inline text-slate-300">|</span>
+                    <span><i class="fa-solid fa-phone mr-2 text-purple-500"></i>587-802-5634</span>
+                </div>
+                <p class="font-bold text-slate-500"><i class="fa-solid fa-envelope mr-2 text-purple-500"></i><a
+                        href="mailto:veryhandyhomeservices1@gmail.com"
+                        class="hover:text-purple-400 transition">veryhandyhomeservices1@gmail.com</a></p>
+            </div>
+            <p class="text-xs tracking-widest uppercase">&copy; 2026 VH Autoglass & Detailing. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>

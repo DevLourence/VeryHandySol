@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Portal | VH Autoglass</title>
+    <link rel="icon" href="image/logo/vh_logo.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        purple: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            300: '#c4b5fd',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#5b21b6', // Brand Primary
+                            700: '#4c1d95',
+                            800: '#2e1065',
+                            900: '#1e1b4b',
+                        },
+                        amber: {
+                            400: '#fbbf24', // Brand Secondary
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Supabase Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Email System: Powered by Resend (via Supabase Edge Functions) -->
+
+    <!-- ImageKit Upload Utility -->
+    <script src="js/imagekit-upload.js"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.03;
+            background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+
+        .card-premium {
+            background: #ffffff;
+            border-radius: 32px;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.04);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .card-premium:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 40px 80px -20px rgba(91, 33, 182, 0.1);
+            border-color: rgba(91, 33, 182, 0.1);
+        }
+
+        /* --- DASHBOARD ANIMATIONS --- */
+        .blob {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, rgba(147, 51, 234, 0.1) 0%, rgba(251, 191, 36, 0.05) 100%);
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            animation: move 20s infinite alternate;
+        }
+
+        @keyframes move {
+            from {
+                transform: translate(-10%, -10%) scale(1);
+            }
+
+            to {
+                transform: translate(10%, 10%) scale(1.1);
+            }
+        }
+
+        /* --- STATUS BADGES --- */
+        .status-pill {
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+            border: 1px solid #fde68a;
+        }
+
+        .status-confirmed {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status-completed {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* --- FORM ELEMENTS --- */
+        .input-premium {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .input-premium:focus {
+            background: #ffffff;
+            border-color: #9333ea;
+            box-shadow: 0 0 0 8px rgba(147, 51, 234, 0.05);
+            transform: translateY(-2px);
+        }
+
+        /* --- MODAL UPDATES --- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-container {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            /* Ultra clean border */
+            border-radius: 40px;
+            /* Softer curves */
+            width: 100%;
+            max-width: 460px;
+            padding: 48px 36px;
+            box-shadow:
+                0 0 0 10px rgba(255, 255, 255, 0.5),
+                /* Inner glow ring */
+                0 40px 100px -20px rgba(100, 116, 139, 0.4);
+            /* Deep ambient shadow */
+            text-align: center;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative background blur blob */
+        .modal-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-icon-wrapper {
+            width: 88px;
+            height: 88px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 28px;
+            position: relative;
+            z-index: 1;
+            /* Neumorphic / 3D feel */
+            box-shadow:
+                inset 0 2px 4px rgba(255, 255, 255, 0.8),
+                0 20px 40px -10px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-success .modal-icon-wrapper {
+            background: linear-gradient(135deg, #86efac, #22c55e);
+            color: #ffffff;
+            box-shadow: 0 20px 40px -10px rgba(34, 197, 94, 0.4);
+        }
+
+        .modal-danger .modal-icon-wrapper {
+            background: linear-gradient(135deg, #fca5a5, #ef4444);
+            color: #ffffff;
+            box-shadow: 0 20px 40px -10px rgba(239, 68, 68, 0.4);
+        }
+
+        .modal-warning .modal-icon-wrapper {
+            background: linear-gradient(135deg, #fcd34d, #f59e0b);
+            color: #ffffff;
+            box-shadow: 0 20px 40px -10px rgba(245, 158, 11, 0.4);
+        }
+
+        .modal-info .modal-icon-wrapper {
+            background: linear-gradient(135deg, #a5b4fc, #6366f1);
+            color: #ffffff;
+            box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.4);
+        }
+
+        .modal-title {
+            position: relative;
+            z-index: 1;
+            font-family: 'Outfit', sans-serif;
+            /* Ensuring sleek geometric font */
+            font-size: 1.75rem;
+            font-weight: 900;
+            color: #1e293b;
+            margin-bottom: 12px;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+        }
+
+        .modal-message {
+            position: relative;
+            z-index: 1;
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #64748b;
+            margin-bottom: 40px;
+            font-weight: 500;
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .modal-btns {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            gap: 16px;
+            flex-direction: row;
+            /* Back to side-by-side for desktop feel, or keeps sleek */
+            align-items: center;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 16px 24px;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid transparent;
+        }
+
+        /* EXECUTIVE PRIMARY BUTTON */
+        .btn-confirm {
+            background: linear-gradient(135deg, #4f46e5 0%, #7e22ce 100%);
+            color: white;
+            box-shadow: 0 4px 12px -2px rgba(79, 70, 229, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-confirm:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px -4px rgba(79, 70, 229, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        /* PREMIUM MODAL BUTTONS */
+        .btn-gradient-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px -2px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-gradient-success:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-gradient-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            color: white;
+            box-shadow: 0 4px 12px -2px rgba(239, 68, 68, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-gradient-danger:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px -4px rgba(239, 68, 68, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-gradient-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 4px 12px -2px rgba(245, 158, 11, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-gradient-warning:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px -4px rgba(245, 158, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-gradient-info {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            box-shadow: 0 4px 12px -2px rgba(99, 102, 241, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-gradient-info:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 font-sans">
+    <div class="grain-overlay"></div>
+    <div class="blob" style="top: -100px; left: -100px;"></div>
+    <div class="blob" style="bottom: -100px; right: -100px; animation-delay: -10s;"></div>
+
+    <nav
+        class="glass fixed w-full z-50 border-b border-white/20 px-6 py-4 flex justify-between items-center transition-all duration-300">
+        <div class="flex items-center space-x-4">
+            <div
+                class="w-12 h-12 rounded-full flex items-center justify-center text-white bg-transparent overflow-hidden">
+                <img src="image/logo/vh_logo.png" class="w-full h-full rounded-full object-contain scale-125">
+            </div>
+            <div>
+                <span class="block text-lg font-extrabold uppercase tracking-tighter text-slate-900">VH Autoglass</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="relative group cursor-pointer" onclick="document.getElementById('avatar-upload').click()">
+                    <div id="header-avatar"
+                        class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden hover:border-purple-500 transition-colors">
+                        <i class="fa-solid fa-user text-slate-400"></i>
+                    </div>
+                    <div
+                        class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i class="fa-solid fa-camera text-white text-[10px]"></i>
+                    </div>
+                    <input type="file" id="avatar-upload" class="hidden" accept="image/*" onchange="uploadAvatar(this)">
+                </div>
+                <div class="hidden md:flex flex-col items-end">
+                    <span id="user-greeting" class="font-bold text-slate-900 text-sm">Hello!</span>
+                    <div id="profile-info" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"></div>
+                </div>
+                <button onclick="openSettingsModal()"
+                    class="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 hover:text-purple-600 hover:border-purple-600 transition-all shadow-sm">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
+            <button onclick="handleLogout()"
+                class="bg-slate-900 text-white px-5 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-purple-600 transition-all duration-300 shadow-lg shadow-slate-900/10">Logout</button>
+        </div>
+    </nav>
+
+    <main class="pt-28 pb-12 px-4 md:px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
+
+        <div class="lg:col-span-4">
+            <div class="card-premium p-8 sticky top-28">
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600">
+                        <i class="fa-solid fa-plus text-lg"></i>
+                    </div>
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Request Service</h2>
+                </div>
+
+                <form id="request-form" class="space-y-5">
+                    <div class="space-y-1.5">
+                        <label class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Service
+                            Category</label>
+                        <select id="service-type" onchange="updateServiceHint()" required
+                            class="w-full p-4 input-premium rounded-2xl outline-none text-sm font-semibold">
+                            <option value="">Loading services...</option>
+                        </select>
+                        <p id="service-hint" class="text-[10px] text-purple-600 font-bold px-1"></p>
+                    </div>
+
+
+                    <div class="space-y-1.5">
+                        <label class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Describe
+                            the issue</label>
+                        <textarea id="service-desc" rows="4" placeholder="Be as specific as possible" required
+                            class="w-full p-4 input-premium rounded-2xl outline-none text-sm font-semibold"></textarea>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Service
+                            Branch</label>
+                        <select id="service-branch" required
+                            class="w-full p-4 input-premium rounded-2xl outline-none text-sm font-semibold">
+                            <option value="">Loading branches...</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Specific
+                            Location</label>
+                        <input id="service-address" type="text" placeholder="Address Details" required
+                            class="w-full p-4 input-premium rounded-2xl outline-none text-sm font-semibold" />
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label
+                            class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Appointment
+                            Time <span class="text-purple-500 font-bold ml-1">(7AM - 7PM, Mon-Sat)</span></label>
+                        <input id="service-datetime" type="datetime-local" onchange="validateDateTime(this)" required
+                            class="w-full p-4 input-premium rounded-2xl outline-none text-sm font-semibold" />
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Upload
+                            Media <span class="text-purple-500 font-bold ml-1">(Optional - Images/Videos)</span></label>
+                        <input id="service-photo" type="file" multiple accept="image/*,video/*"
+                            class="w-full p-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-purple-50 file:text-purple-600 hover:file:bg-purple-100 transition-all">
+                        <div id="upload-preview" class="grid grid-cols-3 gap-2 mt-2"></div>
+                        <div id="upload-progress" class="hidden mt-2">
+                            <div class="flex justify-between items-center mb-1">
+                                <span id="progress-text"
+                                    class="text-[10px] font-bold text-purple-600 uppercase tracking-wider"></span>
+                                <span id="progress-percent" class="text-[10px] font-black text-purple-600">0%</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div id="progress-bar"
+                                    class="h-full bg-gradient-to-r from-purple-600 to-amber-600 transition-all duration-300"
+                                    style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btn-submit"
+                        class="w-full bg-purple-600 hover:bg-slate-900 text-white font-black py-5 rounded-2xl shadow-2xl shadow-purple-500/20 transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2 uppercase tracking-[0.2em] text-[10px]">
+                        Submit Service Request
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="lg:col-span-8 space-y-10">
+            <!-- Active Appointments -->
+            <div class="card-premium p-8">
+                <div class="flex justify-between items-center mb-10">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 bg-purple-600/10 rounded-xl flex items-center justify-center text-purple-600">
+                            <i class="fa-solid fa-calendar-check text-lg"></i>
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Active Schedule</h2>
+                    </div>
+                </div>
+                <div id="appointments-container" class="space-y-6"></div>
+            </div>
+
+            <!-- Service History -->
+            <div class="bg-slate-50 rounded-[32px] p-8 border border-slate-100">
+                <div class="flex justify-between items-center mb-10">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 bg-slate-200/50 rounded-xl flex items-center justify-center text-slate-400">
+                            <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-400 tracking-tight">Work History</h2>
+                    </div>
+                </div>
+                <div id="history-container" class="space-y-6 grayscale opacity-60"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Review Modal -->
+    <div id="review-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeReviewModal()"></div>
+        <div class="bg-white relative w-full max-w-lg p-10 rounded-[40px] shadow-2xl border border-slate-100">
+            <h2 class="text-2xl font-black text-slate-900 uppercase mb-2 tracking-tight">Share Your Experience</h2>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-8">Feedback helps us maintain
+                excellence</p>
+
+            <form id="review-form" class="space-y-6">
+                <input type="hidden" id="review-booking-id">
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Reliability &
+                        Results</label>
+                    <div class="flex gap-3 justify-center text-2xl" id="star-rating">
+                        <i class="fa-solid fa-star cursor-pointer text-amber-400 star" data-val="1"></i>
+                        <i class="fa-solid fa-star cursor-pointer text-amber-400 star" data-val="2"></i>
+                        <i class="fa-solid fa-star cursor-pointer text-amber-400 star" data-val="3"></i>
+                        <i class="fa-solid fa-star cursor-pointer text-amber-400 star" data-val="4"></i>
+                        <i class="fa-solid fa-star cursor-pointer text-amber-400 star" data-val="5"></i>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Your
+                        Feedback</label>
+                    <textarea id="review-comment" rows="4" placeholder="Tell us how we performed..." required
+                        class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-purple-500/5 focus:bg-white focus:border-purple-500 transition-all text-sm font-semibold"></textarea>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Project
+                        Photos</label>
+                    <input id="review-photos" type="file" multiple class="w-full text-xs">
+                </div>
+
+                <div class="flex gap-4">
+                    <button type="button" onclick="closeReviewModal()"
+                        class="flex-1 bg-slate-100 text-slate-600 font-black py-4 rounded-2xl uppercase tracking-widest text-[10px]">Cancel</button>
+                    <button type="submit" id="btn-review-submit"
+                        class="flex-[2] bg-slate-900 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-[10px] shadow-xl hover:bg-purple-600 transition-all shadow-slate-900/10">
+                        Publish Review
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- Media Lightbox Modal -->
+    <div id="lightbox-modal" class="modal-overlay">
+        <div class="absolute top-8 right-8 z-[100]">
+            <button onclick="closeLightbox()"
+                class="w-14 h-14 rounded-2xl bg-white/10 text-white hover:bg-rose-500 hover:scale-110 transition-all flex items-center justify-center backdrop-blur-xl border border-white/20">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+        </div>
+        <div id="lightbox-content" class="max-w-[90vw] max-h-[85vh] flex items-center justify-center">
+            <!-- Content Injected -->
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-container max-w-md">
+            <h2 class="text-2xl font-black text-slate-900 uppercase mb-2 tracking-tight">Account Settings</h2>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-8">Manage your profile
+                information</p>
+
+            <div class="space-y-6 text-left">
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Full
+                        Name</label>
+                    <input type="text" id="settings-name" placeholder="Your Name"
+                        class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-purple-500 transition-all font-bold text-sm">
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Phone
+                        Number</label>
+                    <input type="text" id="settings-phone" placeholder="Contact Number"
+                        class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-purple-500 transition-all font-bold text-sm">
+                </div>
+
+                <div class="flex gap-4 pt-4">
+                    <button onclick="closeSettingsModal()"
+                        class="flex-1 bg-slate-100 text-slate-600 font-black py-4 rounded-2xl uppercase tracking-widest text-[10px]">Cancel</button>
+                    <button onclick="saveSettings()"
+                        class="flex-[2] bg-slate-900 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-[10px] shadow-xl hover:bg-purple-600 transition-all">
+                        Update Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Modal -->
+    <div id="ui-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div id="modal-icon-container" class="modal-icon-wrapper"></div>
+            <h3 id="ui-modal-title" class="modal-title"></h3>
+            <p id="ui-modal-msg" class="modal-message"></p>
+            <div class="modal-btns">
+                <button id="modal-cancel" class="modal-btn btn-cancel">Cancel</button>
+                <button id="modal-confirm" class="modal-btn btn-confirm">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- SUPABASE CONFIG ---
+        const SUPABASE_URL = 'https://glnzltetqxpvxsoqwerz.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdsbnpsdGV0cXhwdnhzb3F3ZXJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxOTkxMjgsImV4cCI6MjA4NDc3NTEyOH0.9frBI-FbIHf2q-ZzOGsGbEOkG7n8t5aCM6VP4RyRiWo';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentUser = null;
+
+        async function checkSession() {
+            const { data: { session }, error } = await _supabase.auth.getSession();
+
+            if (error || !session) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            try {
+                // Get extended profile data from our custom profiles table
+                const { data: profile } = await _supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', session.user.id)
+                    .single();
+
+                // Advanced Fallback Strategy:
+                // If profiles row is missing or fields are null, use Supabase Auth metadata
+                const meta = session.user.user_metadata || {};
+                const fullName = profile?.full_name || meta.full_name || 'Valued User';
+                const address = profile?.address || meta.address || 'Location Not Set';
+
+                currentUser = {
+                    ...session.user,
+                    ...profile,
+                    full_name: fullName,
+                    address: address
+                };
+
+                // Update UI Header
+                document.getElementById('user-greeting').innerText = `Hello, ${fullName}`;
+                document.getElementById('profile-info').innerText = `LOCATION: ${address.toUpperCase()}`;
+
+                // Update Avatar UI
+                const avatarEl = document.getElementById('header-avatar');
+                if (profile?.avatar_url) {
+                    avatarEl.innerHTML = `<img src="${profile.avatar_url}" class="w-full h-full object-cover">`;
+                } else {
+                    avatarEl.innerHTML = `<span class="text-sm font-black text-slate-400 uppercase">${fullName.charAt(0)}</span>`;
+                }
+
+                // If profile was missing in DB, we should attempt to create it for consistency
+                if (!profile) {
+                    console.warn('Profile row missing, syncing from auth metadata...');
+                    await _supabase.from('profiles').insert({
+                        id: session.user.id,
+                        full_name: fullName,
+                        address: address,
+                        role: 'client'
+                    });
+                }
+
+                fetchJobs();
+                fetchBranches();
+                fetchServices();
+            } catch (error) {
+                console.error('Session check error:', error);
+                window.location.href = 'index.html';
+            }
+        }
+
+        // --- PROFILE SETTINGS HUD ---
+        function openSettingsModal() {
+            if (!currentUser) return;
+            document.getElementById('settings-name').value = currentUser.full_name || '';
+            document.getElementById('settings-phone').value = currentUser.phone || '';
+            document.getElementById('settings-modal').classList.add('active');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').classList.remove('active');
+        }
+
+        async function saveSettings() {
+            const newName = document.getElementById('settings-name').value;
+            const newPhone = document.getElementById('settings-phone').value;
+
+            if (!newName) return showNiceModal({ title: 'Invalid Data', message: 'Full Name is required.', type: 'warning' });
+
+            try {
+                const { error } = await _supabase
+                    .from('profiles')
+                    .update({
+                        full_name: newName,
+                        phone: newPhone
+                    })
+                    .eq('id', currentUser.id);
+
+                if (error) throw error;
+
+                showNiceModal({
+                    title: "Profile Updated",
+                    message: "Your profile information has been synchronized successfully.",
+                    type: "success"
+                });
+
+                closeSettingsModal();
+                checkSession(); // Re-fetch to update UI
+
+            } catch (error) {
+                showNiceModal({ title: 'Update Failed', message: error.message, type: 'danger' });
+            }
+        }
+
+        let servicesCache = [];
+        async function fetchServices() {
+            try {
+                const { data, error } = await _supabase
+                    .from('services')
+                    .select('*')
+                    .order('name', { ascending: true });
+
+                if (error) throw error;
+
+                servicesCache = data || [];
+                document.getElementById('service-type').innerHTML = '<option value="">Select Category</option>' + servicesCache.map(s => `< option value = "${s.name}" > ${s.name}</option > `).join('');
+            } catch (error) {
+                console.error('Error fetching services:', error);
+                servicesCache = [];
+            }
+        }
+
+        function updateServiceHint() {
+            const name = document.getElementById('service-type').value;
+            const s = servicesCache.find(x => x.name === name);
+            document.getElementById('service-hint').innerText = s?.description ? `💡 ${s.description}` : '';
+        }
+
+        async function fetchBranches() {
+            try {
+                const { data, error } = await _supabase
+                    .from('branches')
+                    .select('*')
+                    .order('name', { ascending: true });
+
+                if (error) throw error;
+
+                document.getElementById('service-branch').innerHTML = '<option value="">Select Branch</option>' + (data || []).map(b => `<option value="${b.name}">${b.name}</option>`).join('');
+            } catch (error) {
+                console.error('Error fetching branches:', error);
+            }
+        }
+
+        async function fetchJobs() {
+            if (!currentUser) return;
+
+            try {
+                const { data: jobs, error } = await _supabase
+                    .from('bookings')
+                    .select(`
+                *,
+                    reviews(rating, comment)
+                        `)
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const active = (jobs || []).filter(j => ['pending', 'confirmed', 'in_progress'].includes(j.status));
+                const past = (jobs || []).filter(j => ['completed', 'cancelled'].includes(j.status));
+
+                document.getElementById('appointments-container').innerHTML = active.map(j => renderCard(j)).join('') || '<p class="text-slate-400 text-center italic">No active bookings.</p>';
+                document.getElementById('history-container').innerHTML = past.map(j => renderCard(j)).join('') || '<p class="text-slate-400 text-center italic">No history.</p>';
+            } catch (error) {
+                console.error('Error fetching bookings:', error);
+                document.getElementById('appointments-container').innerHTML = `
+                    <div class="text-center p-8 bg-rose-50 rounded-2xl border border-rose-100">
+                        <p class="text-rose-600 font-black text-xs uppercase mb-2">Sync Error</p>
+                        <p class="text-rose-400 text-[10px] font-bold uppercase tracking-widest">${error.message || 'Check database connection'}</p>
+                    </div>
+                    `;
+            }
+        }
+
+        function renderCard(j) {
+            const review = j.reviews && j.reviews[0];
+            const hasMedia = j.photo_urls && j.photo_urls.length > 0;
+
+            return `
+                    <div class="p-8 bg-white border border-slate-100 rounded-[32px] card-premium">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <span class="status-pill status-${j.status}">${j.status}</span>
+                            <h3 class="text-xl font-black mt-3 uppercase tracking-tight text-slate-800">${j.service_type}</h3>
+                            ${review ? `
+                                <div class="flex gap-1 text-amber-400 mt-2 text-xs">
+                                    ${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest block leading-none mb-1">Appointment</span>
+                            <div class="text-sm font-bold text-slate-600">
+                                ${j.preferred_date ? new Date(j.preferred_date).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : 'No Date'}
+                            </div>
+                            <div class="text-[10px] font-black text-purple-500 uppercase tracking-[0.2em] mt-1">
+                                <i class="fa-solid fa-clock mr-1"></i> ${j.preferred_time ? j.preferred_time.substring(0, 5) : 'TBD'}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${hasMedia ? `
+                        <div class="mb-6">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-3">📸 Attached Media (${j.photo_urls.length})</p>
+                            <div class="grid grid-cols-3 gap-2">
+                                ${j.photo_urls.slice(0, 6).map(item => {
+                const url = typeof item === 'object' ? item.url : item;
+                if (!url) return '';
+                const isVideo = url.toLowerCase().match(/\.(mp4|mov|webm|ogg|m4v)$/) || url.includes('/video/');
+                const thumbUrl = window.ImageKitUpload ? window.ImageKitUpload.getOptimizedUrl(url, 'thumbnail') : url;
+                return `
+                                        <div class="relative group cursor-pointer aspect-square overflow-hidden rounded-lg border border-slate-200 hover:border-purple-400 transition-all" onclick="openMediaLightbox('${url}')">
+                                            ${isVideo ? `
+                                                <video src="${thumbUrl}" class="w-full h-full object-cover"></video>
+                                                <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                                                    <i class="fa-solid fa-play text-white text-lg"></i>
+                                                </div>
+                                            ` : `
+                                                <img src="${thumbUrl}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                                            `}
+                                        </div>
+                                    `;
+            }).join('')}
+                                ${j.photo_urls.length > 6 ? `
+                                    <div class="aspect-square rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center">
+                                        <span class="text-xs font-black text-slate-400">+${j.photo_urls.length - 6} more</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <p class="text-sm text-slate-500 mb-6 leading-relaxed">
+                ${review ? `<span class="block italic text-slate-400 mb-2">"${review.comment}"</span>` : ''}
+                ${j.notes || 'No additional details provided.'}
+            </p>
+                <div class="flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-t pt-6 border-slate-50">
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <span><i class="fa-solid fa-location-dot text-purple-600 mr-2"></i>${j.location || 'Location Not Set'}</span>
+                        <span><i class="fa-solid fa-clock text-purple-600 mr-2"></i>${j.preferred_time ? j.preferred_time.substring(0, 5) : 'Time Not Set'}</span>
+                    </div>
+                    ${j.status === 'completed' && !review ? `
+                            <button onclick="openReviewModal('${j.id}')" class="text-purple-600 hover:text-amber-600 transition-colors flex items-center gap-2">
+                                <i class="fa-solid fa-star"></i> Leave Review
+                            </button>
+                        ` : ''}
+                    ${review ? `
+                            <span class="text-emerald-500 flex items-center gap-1">
+                                <i class="fa-solid fa-circle-check"></i> Reviewed
+                            </span>
+                        ` : ''}
+                </div>
+                </div>
+                `;
+        }
+
+        // Media lightbox function
+        window.openMediaLightbox = (url) => {
+            const modal = document.getElementById('lightbox-modal');
+            const content = document.getElementById('lightbox-content');
+
+            const isVideo = url.toLowerCase().match(/\.(mp4|mov|webm|ogg|m4v)$/) || url.includes('/video/');
+
+            if (isVideo) {
+                content.innerHTML = `<video src="${url}" controls autoplay class="max-w-full max-h-[85vh] rounded-lg shadow-2xl">`;
+            } else {
+                const optimizedUrl = window.ImageKitUpload ? window.ImageKitUpload.getOptimizedUrl(url, 'large') : url;
+                content.innerHTML = `<img src="${optimizedUrl}" class="max-w-full max-h-[85vh] rounded-lg shadow-2xl">`;
+            }
+
+            modal.classList.add('active');
+        };
+
+        window.closeLightbox = () => {
+            document.getElementById('lightbox-modal').classList.remove('active');
+            document.getElementById('lightbox-content').innerHTML = '';
+        };
+
+        // Instant Datetime Validation
+        function validateDateTime(input) {
+            const val = input.value;
+            if (!val) {
+                input.classList.remove('border-emerald-500', 'border-rose-500');
+                input.classList.add('border-slate-100');
+                return;
+            }
+
+            const bDate = new Date(val);
+            const day = bDate.getDay();
+            const hour = bDate.getHours();
+
+            let isValid = true;
+            let errorMsg = "";
+
+            if (day === 0) {
+                isValid = false;
+                errorMsg = "❌ We are closed on Sundays. Please select Mon-Sat.";
+            } else if (hour < 7 || hour >= 19) {
+                isValid = false;
+                errorMsg = "❌ Appointments are only available between 7:00 AM and 7:00 PM.";
+            }
+
+            if (!isValid) {
+                input.classList.remove('border-slate-100', 'border-emerald-500');
+                input.classList.add('border-rose-500');
+
+                showNiceModal({
+                    title: "Invalid Timing",
+                    message: errorMsg,
+                    type: "warning"
+                });
+
+                input.value = "";
+                setTimeout(() => {
+                    input.classList.remove('border-rose-500');
+                    input.classList.add('border-slate-100');
+                }, 2000);
+            } else {
+                input.classList.remove('border-slate-100', 'border-rose-500');
+                input.classList.add('border-emerald-500');
+            }
+        }
+
+
+
+        // Helper: Strict 1-minute video limit
+        function getVideoDuration(file) {
+            return new Promise((resolve) => {
+                if (!file.type.includes('video')) return resolve(0);
+                const video = document.createElement('video');
+                video.preload = 'metadata';
+                video.onloadedmetadata = () => {
+                    window.URL.revokeObjectURL(video.src);
+                    resolve(video.duration);
+                };
+                video.src = URL.createObjectURL(file);
+            });
+        }
+
+        // Photo preview handler
+        document.getElementById('service-photo').addEventListener('change', (e) => {
+            const preview = document.getElementById('upload-preview');
+            preview.innerHTML = '';
+
+            const files = Array.from(e.target.files);
+            files.forEach((file, idx) => {
+                const isVideo = file.type.includes('video');
+                const url = URL.createObjectURL(file);
+
+                const div = document.createElement('div');
+                div.className = 'relative group';
+                div.innerHTML = `
+                    ${isVideo ?
+                        `<video src="${url}" class="w-full h-20 object-cover rounded-lg border border-slate-200"></video>
+                         <div class="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg">
+                             <i class="fa-solid fa-play text-white text-lg"></i>
+                         </div>` :
+                        `<img src="${url}" class="w-full h-20 object-cover rounded-lg border border-slate-200">`
+                    }
+            <button type="button" onclick="removePreview(${idx})"
+                class="absolute -top-2 -right-2 w-6 h-6 bg-rose-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            `;
+                preview.appendChild(div);
+            });
+        });
+
+        window.removePreview = (index) => {
+            const input = document.getElementById('service-photo');
+            const dt = new DataTransfer();
+            const files = Array.from(input.files);
+
+            files.forEach((file, idx) => {
+                if (idx !== index) dt.items.add(file);
+            });
+
+            input.files = dt.files;
+            input.dispatchEvent(new Event('change'));
+        };
+
+        document.getElementById('request-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit');
+            const progressContainer = document.getElementById('upload-progress');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const progressPercent = document.getElementById('progress-percent');
+
+            btn.disabled = true;
+            btn.innerText = "VALIDATING...";
+
+            try {
+                // Time & Day Validation (7 AM - 7 PM, Monday to Saturday)
+                const bookingInp = document.getElementById('service-datetime').value;
+                if (!bookingInp) throw new Error("Please select an appointment time.");
+
+                const bDate = new Date(bookingInp);
+                const day = bDate.getDay(); // 0 = Sunday, 1 = Monday...
+                const hour = bDate.getHours();
+
+                if (day === 0) {
+                    throw new Error("We are closed on Sundays. Please select a day from Monday to Saturday.");
+                }
+                if (hour < 7 || hour >= 19) {
+                    throw new Error("Appointments are only available between 7:00 AM and 7:00 PM.");
+                }
+
+                if (!currentUser) throw new Error("Please log in to submit a booking.");
+
+                // Upload photos to ImageKit if any
+                let photoUrls = [];
+                const photoInput = document.getElementById('service-photo');
+
+                if (photoInput.files.length > 0) {
+                    btn.innerText = "UPLOADING MEDIA...";
+                    progressContainer.classList.remove('hidden');
+
+                    try {
+                        photoUrls = await window.ImageKitUpload.uploadMultipleFiles(
+                            photoInput.files,
+                            '/vh-autoglass/bookings',
+                            (current, total, fileName, status, filePercent, url, error) => {
+                                // Granular progress: current file status + specific byte progress
+                                const overallPercent = Math.round(((current + (filePercent / 100)) / total) * 100);
+                                progressBar.style.width = `${overallPercent}% `;
+                                progressPercent.innerText = `${overallPercent}% `;
+
+                                if (status === 'uploading') {
+                                    progressText.innerText = `Uploading ${fileName}... (${current + 1}/${total}) - ${filePercent}% `;
+                                } else if (status === 'completed') {
+                                    progressText.innerText = `✓ ${fileName} uploaded(${current} / ${total})`;
+                                } else if (status === 'error') {
+                                    progressText.innerText = `✗ ${fileName} failed: ${error} `;
+                                }
+                            }
+                        );
+
+                        progressText.innerText = `✅ All ${photoUrls.length} files uploaded successfully!`;
+                    } catch (uploadError) {
+                        throw new Error(`Upload failed: ${uploadError.message} `);
+                    }
+                }
+
+                // Create booking with photo URLs
+                btn.innerText = "SAVING BOOKING...";
+
+                const branch = document.getElementById('service-branch').value;
+                const address = document.getElementById('service-address').value;
+                const fullLocation = branch ? `${branch} - ${address} ` : address;
+
+                const { error } = await _supabase
+                    .from('bookings')
+                    .insert([{
+                        user_id: currentUser.id,
+                        service_type: document.getElementById('service-type').value,
+                        preferred_date: bDate.toISOString().split('T')[0],
+                        preferred_time: bDate.toTimeString().split(' ')[0],
+                        location: fullLocation,
+                        status: 'pending',
+                        notes: document.getElementById('service-desc').value,
+                        photo_url: JSON.stringify(photoUrls)
+                    }]);
+
+                if (error) throw error;
+
+                // --- TRIGGER ADMIN NOTIFICATION ---
+                if (data && data[0]) {
+                    const bookingId = data[0].id;
+                    fetch('https://glnzltetqxpvxsoqwerz.supabase.co/functions/v1/send-booking-update', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        },
+                        body: JSON.stringify({
+                            type: 'admin_new_booking',
+                            name: currentUser.full_name || 'Client',
+                            details: document.getElementById('service-type').value,
+                            booking_id: bookingId,
+                            to: 'admin' // Placeholder, backend handles fetching actual admin emails
+                        })
+                    }).catch(console.error); // Non-blocking
+                }
+
+                showNiceModal({
+                    title: "Request Sent",
+                    message: `✅ Booking submitted successfully${photoUrls.length > 0 ? ` with ${photoUrls.length} media file(s)` : ''}! Our team will review your request shortly.`,
+                    type: "success"
+                });
+
+                document.getElementById('request-form').reset();
+                document.getElementById('upload-preview').innerHTML = '';
+                progressContainer.classList.add('hidden');
+                progressBar.style.width = '0%';
+
+                fetchJobs(); // Refresh bookings list
+
+            } catch (err) {
+                console.error(err);
+                showNiceModal({
+                    title: "Submission Failed",
+                    message: err.message,
+                    type: "danger"
+                });
+                progressContainer.classList.add('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Submit Request";
+            }
+        });
+
+        async function handleLogout() {
+            const confirmed = await showNiceModal({
+                title: "Confirm Sign Out",
+                message: "Signing out will terminate your current secure session. You will be required to authenticate with your credentials to access your client dashboard again.",
+                type: "warning",
+                confirmText: "End Session",
+                cancelText: "Stay Logged In"
+            });
+            if (!confirmed) return;
+
+            await _supabase.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        // --- REVIEW SYSTEM ---
+        let currentRating = 5;
+        function openReviewModal(bookingId) {
+            document.getElementById('review-booking-id').value = bookingId;
+            document.getElementById('review-modal').classList.remove('hidden');
+            setRating(5);
+        }
+
+        function closeReviewModal() {
+            document.getElementById('review-modal').classList.add('hidden');
+            document.getElementById('review-form').reset();
+        }
+
+        function setRating(val) {
+            currentRating = val;
+            document.querySelectorAll('.star').forEach((s, idx) => {
+                s.classList.toggle('text-amber-400', idx < val);
+                s.classList.toggle('text-slate-200', idx >= val);
+            });
+        }
+
+        document.querySelectorAll('.star').forEach(s => {
+            s.onclick = () => setRating(parseInt(s.dataset.val));
+        });
+
+        document.getElementById('review-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-review-submit');
+
+            btn.disabled = true;
+            btn.innerText = "PROCESSING...";
+
+            try {
+                if (!currentUser) throw new Error("Please log in to submit a review.");
+
+                const bookingId = document.getElementById('review-booking-id').value;
+                const comment = document.getElementById('review-comment').value;
+
+                // Upload review photos if any
+                let photoUrls = [];
+                const photoInput = document.getElementById('review-photos');
+
+                if (photoInput && photoInput.files.length > 0) {
+                    btn.innerText = "UPLOADING PHOTOS...";
+
+                    try {
+                        photoUrls = await window.ImageKitUpload.uploadMultipleFiles(
+                            photoInput.files,
+                            'booking-media' // ImgBB doesn't use folders, but keep for compatibility
+                        );
+                    } catch (uploadError) {
+                        console.error('Photo upload failed:', uploadError);
+                        // Continue without photos if upload fails
+                        photoUrls = [];
+                    }
+                }
+
+                btn.innerText = "SUBMITTING REVIEW...";
+
+                // Get user profile for email
+                const { data: profile } = await _supabase
+                    .from('profiles')
+                    .select('full_name, email')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                const { error } = await _supabase
+                    .from('reviews')
+                    .insert([{
+                        user_id: currentUser.id,
+                        booking_id: bookingId || null,
+                        rating: currentRating,
+                        comment: comment,
+                        photo_urls: photoUrls.length > 0 ? photoUrls : null,
+                        is_approved: false
+                    }]);
+
+                if (error) throw error;
+
+                if (error) throw error;
+
+                // --- TRIGGER ADMIN NOTIFICATION ---
+                fetch('https://glnzltetqxpvxsoqwerz.supabase.co/functions/v1/send-booking-update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    },
+                    body: JSON.stringify({
+                        type: 'admin_new_review',
+                        name: profile?.full_name || currentUser.full_name || 'Client',
+                        details: comment, // Sends the review comment
+                        booking_id: bookingId, // Can be null if general review
+                        to: 'admin'
+                    })
+                }).catch(console.error);
+
+                // UI Feedback
+                showNiceModal({
+                    title: "Review Submitted",
+                    message: `✅ Thank you for your feedback${photoUrls.length > 0 ? ` with ${photoUrls.length} attachment(s)` : ''}! Your review will be published after approval.`,
+                    type: "success"
+                });
+                closeReviewModal();
+                fetchJobs(); // Refresh to show review submitted
+            } catch (err) {
+                console.error(err);
+                showNiceModal({
+                    title: "Feedback Error",
+                    message: "Failed to submit review: " + err.message,
+                    type: "danger"
+                });
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Publish Review";
+            }
+        });
+
+        // --- Avatar Upload Logic ---
+        async function uploadAvatar(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            // Validate file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                return showNiceModal({ title: 'File Too Large', message: 'Profile photo must be under 2MB.', type: 'warning' });
+            }
+
+            try {
+                // Show loading state
+                const avatarEl = document.getElementById('header-avatar');
+                const originalContent = avatarEl.innerHTML;
+                avatarEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-purple-600"></i>`;
+
+                // Upload to ImageKit
+                const result = await window.ImageKitUpload.uploadToImageKit(file, `avatar_${currentUser.id}`);
+                const avatarUrl = result.url;
+
+                // Update Supabase Profile
+                const { error } = await _supabase
+                    .from('profiles')
+                    .update({ avatar_url: avatarUrl })
+                    .eq('id', currentUser.id);
+
+                if (error) throw error;
+
+                // Update UI
+                avatarEl.innerHTML = `<img src="${avatarUrl}" class="w-full h-full object-cover animate-pulse">`;
+                setTimeout(() => avatarEl.querySelector('img').classList.remove('animate-pulse'), 500);
+
+                await showNiceModal({ title: 'Success', message: 'Profile photo updated.', type: 'success' });
+
+            } catch (error) {
+                console.error('Avatar upload error:', error);
+                await showNiceModal({
+                    title: "Upload Failed",
+                    message: "Failed to update profile photo: " + error.message,
+                    type: "danger"
+                });
+                // Revert UI on failure
+                document.getElementById('header-avatar').innerHTML = `<span class="text-sm font-black text-slate-400 uppercase">${currentUser.full_name.charAt(0)}</span>`;
+            }
+        }
+
+        // --- Session Timeout (AFK Handler) ---
+        function initSessionTimeout() {
+            let timeout;
+            const TIMEOUT_DURATION = 3600000; // 1 Hour
+
+            async function logoutUser() {
+                await showNiceModal({ title: 'Session Expired', message: 'You have been inactive for 1 hour. Logging out for security.', type: 'warning' });
+                handleLogout();
+            }
+
+            function resetTimer() {
+                clearTimeout(timeout);
+                timeout = setTimeout(logoutUser, TIMEOUT_DURATION);
+            }
+
+            window.onload = resetTimer;
+            document.onmousemove = resetTimer;
+            document.onkeypress = resetTimer;
+            document.onclick = resetTimer;
+            document.onscroll = resetTimer;
+        }
+
+        initSessionTimeout();
+        checkSession();
+
+
+        // --- Premium Modal System ---
+        function showNiceModal({ title, message, type = 'info', confirmText = 'OK', cancelText = null }) {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('ui-modal');
+                const titleEl = document.getElementById('ui-modal-title');
+                const msgEl = document.getElementById('ui-modal-msg');
+                const iconContainer = document.getElementById('modal-icon-container');
+                const confirmBtn = document.getElementById('modal-confirm');
+                const cancelBtn = document.getElementById('modal-cancel');
+
+                modal.className = 'modal-overlay active ' + `modal-${type}`;
+                titleEl.innerText = title;
+                msgEl.innerText = message;
+                confirmBtn.innerText = confirmText;
+
+                const icons = {
+                    success: '<i class="fa-solid fa-circle-check"></i>',
+                    danger: '<i class="fa-solid fa-triangle-exclamation"></i>',
+                    warning: '<i class="fa-solid fa-circle-exclamation"></i>',
+                    info: '<i class="fa-solid fa-circle-info"></i>'
+                };
+                iconContainer.innerHTML = icons[type] || icons.info;
+
+                const btnClasses = {
+                    success: 'btn-gradient-success',
+                    danger: 'btn-gradient-danger',
+                    warning: 'btn-gradient-warning',
+                    info: 'btn-gradient-info'
+                };
+                confirmBtn.className = `modal-btn ${btnClasses[type] || btnClasses.info}`;
+
+                if (cancelText) {
+                    cancelBtn.innerText = cancelText;
+                    cancelBtn.className = 'modal-btn bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors shadow-sm';
+                    cancelBtn.classList.remove('hidden');
+                } else {
+                    cancelBtn.classList.add('hidden');
+                }
+
+                confirmBtn.onclick = () => { modal.classList.remove('active'); resolve(true); };
+                cancelBtn.onclick = () => { modal.classList.remove('active'); resolve(false); };
+            });
+        }
+
+        function openLightbox(src) {
+            const modal = document.getElementById('lightbox-modal');
+            const container = document.getElementById('lightbox-content');
+            const isVideo = src.toLowerCase().match(/\.(mp4|mov|webm|ogg|m4v)$/) || src.includes('/video/upload/');
+
+            container.innerHTML = isVideo
+                ? `<video src="${src}" controls autoplay class="max-w-full max-h-full rounded-2xl shadow-2xl"></video>`
+                : `<img src="${src}" class="max-w-full max-h-full object-contain rounded-2xl shadow-2xl transition-all">`;
+
+            modal.classList.add('active');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox-modal').classList.remove('active');
+            document.getElementById('lightbox-content').innerHTML = ''; // Stop video
+        }
+    </script>
+</body>
+
+</html>

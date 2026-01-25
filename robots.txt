@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /client_dashboard.html
+Disallow: /admin_dashboard.html
+Disallow: /reset_password.html
+
+Sitemap: https://veryhandyhomeservice.com/sitemap.xml
