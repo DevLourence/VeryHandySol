@@ -366,6 +366,67 @@
             transform: translateY(-1px);
             box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
+
+        /* --- NOTIFICATION DROPDOWN --- */
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 360px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            margin-top: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 100;
+        }
+
+        .notification-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .notification-item {
+            padding: 16px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .notification-item:hover {
+            background: #f8fafc;
+        }
+
+        .notification-item.unread {
+            background: #f5f3ff;
+        }
+
+        .notification-item.unread:hover {
+            background: #ede9fe;
+        }
+
+        #notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 18px;
+            height: 18px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 900;
+            border: 2px solid white;
+        }
     </style>
 </head>
 
@@ -402,6 +463,31 @@
                     <span id="user-greeting" class="font-bold text-slate-900 text-sm">Hello!</span>
                     <div id="profile-info" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"></div>
                 </div>
+
+                <div class="relative">
+                    <button onclick="toggleNotifications()"
+                        class="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 hover:text-purple-600 hover:border-purple-600 transition-all shadow-sm">
+                        <i class="fa-solid fa-bell"></i>
+                        <span id="notification-badge" class="hidden">0</span>
+                    </button>
+
+                    <div id="notification-dropdown" class="notification-dropdown overflow-hidden">
+                        <div class="p-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+                            <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900">Notifications
+                            </h3>
+                            <button onclick="markAllAsRead()"
+                                class="text-[8px] font-black uppercase tracking-widest text-purple-600 hover:underline">Clear
+                                All</button>
+                        </div>
+                        <div id="notification-list" class="max-h-[400px] overflow-y-auto no-scrollbar">
+                            <div class="p-8 text-center text-slate-400">
+                                <i class="fa-solid fa-bell-slash text-2xl mb-3 opacity-20"></i>
+                                <p class="text-[9px] font-black uppercase tracking-widest">No Alerts</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <button onclick="openSettingsModal()"
                     class="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 hover:text-purple-600 hover:border-purple-600 transition-all shadow-sm">
                     <i class="fa-solid fa-gear"></i>
@@ -1118,20 +1204,14 @@
 
                 if (error) throw error;
 
-                // --- TRIGGER ADMIN NOTIFICATION (EMAILJS) ---
+                // --- TRIGGER ADMIN NOTIFICATION (IN-APP - REPLACES EMAIL) ---
                 if (data && data[0]) {
                     const bookingId = data[0].id;
-                    const emailParams = {
-                        client_name: currentUser.full_name || 'Client',
-                        service_type: document.getElementById('service-type').value,
-                        booking_id: bookingId,
-                        location: fullLocation,
-                        notes: document.getElementById('service-desc').value
-                    };
-
-                    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_NEW_BOOKING, emailParams)
-                        .then(() => console.log('Admin notified via EmailJS'))
-                        .catch(err => console.error("EmailJS Error:", err));
+                    await notifyAdmins(
+                        "New Booking Request",
+                        `${currentUser.full_name} requested ${document.getElementById('service-type').value} (#${bookingId})`,
+                        'info'
+                    );
                 }
 
                 showNiceModal({
@@ -1241,6 +1321,13 @@
 
                 if (error) throw error;
 
+                // --- TRIGGER ADMIN NOTIFICATION (NEW FEEDBACK) ---
+                notifyAdmins(
+                    "New Feedback Received",
+                    `${currentUser.full_name} submitted a ${currentRating}-star review for approval.`,
+                    'warning'
+                );
+
                 showNiceModal({
                     title: "Review Submitted",
                     message: `✅ Thank you for your feedback! Your review will be published after approval.`,
@@ -1301,26 +1388,156 @@
         function initSessionTimeout() {
             let timeout;
             const TIMEOUT_DURATION = 3600000;
-
-            async function logoutUser() {
-                await showNiceModal({ title: 'Session Expired', message: 'You have been inactive for 1 hour. Logging out for security.', type: 'warning' });
-                handleLogout();
-            }
-
             function resetTimer() {
                 clearTimeout(timeout);
-                timeout = setTimeout(logoutUser, TIMEOUT_DURATION);
+                timeout = setTimeout(() => handleLogout(), TIMEOUT_DURATION);
             }
-
             window.onload = resetTimer;
             document.onmousemove = resetTimer;
             document.onkeypress = resetTimer;
-            document.onclick = resetTimer;
-            document.onscroll = resetTimer;
         }
 
-        initSessionTimeout();
-        checkSession();
+        // --- IN-APP NOTIFICATION SYSTEM ---
+        let notifications = [];
+
+        function toggleNotifications() {
+            document.getElementById('notification-dropdown').classList.toggle('active');
+        }
+
+        async function fetchNotifications() {
+            try {
+                const { data: { session } } = await _supabase.auth.getSession();
+                if (!session) return;
+
+                const { data, error } = await _supabase
+                    .from('notifications')
+                    .select('*')
+                    .eq('user_id', session.user.id)
+                    .order('created_at', { ascending: false })
+                    .limit(10);
+
+                if (error) throw error;
+                notifications = data || [];
+                renderNotifications();
+            } catch (err) {
+                console.error('Fetch Notifications Error:', err);
+            }
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notification-list');
+            const badge = document.getElementById('notification-badge');
+            const unreadCount = notifications.filter(n => !n.is_read).length;
+
+            if (unreadCount > 0) {
+                badge.innerText = unreadCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            if (notifications.length === 0) {
+                list.innerHTML = `
+                    <div class="p-8 text-center text-slate-400">
+                        <i class="fa-solid fa-bell-slash text-2xl mb-3 opacity-20"></i>
+                        <p class="text-[9px] font-black uppercase tracking-widest">No New Alerts</p>
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = notifications.map(n => `
+                <div class="notification-item ${n.is_read ? '' : 'unread'}" onclick="openNotificationDetails(${n.id})">
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 shrink-0">
+                            <i class="fa-solid ${getNotificationIcon(n.type)} text-xs text-${getNotificationColor(n.type)}-500"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-[10px] font-black uppercase tracking-tight text-slate-900 mb-0.5">${n.title}</p>
+                            <p class="text-[9px] font-medium text-slate-500 leading-tight mb-2 truncate">${n.message}</p>
+                            <p class="text-[7px] font-black text-slate-300 uppercase tracking-widest text-left">${new Date(n.created_at).toLocaleString()}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getNotificationIcon(type) {
+            const icons = { info: 'fa-info-circle', success: 'fa-check-circle', warning: 'fa-exclamation-circle', danger: 'fa-times-circle' };
+            return icons[type] || icons.info;
+        }
+
+        function getNotificationColor(type) {
+            const colors = { info: 'blue', success: 'emerald', warning: 'amber', danger: 'rose' };
+            return colors[type] || colors.info;
+        }
+
+        async function openNotificationDetails(id) {
+            const n = notifications.find(notif => notif.id === id);
+            if (!n) return;
+
+            // Mark as read first
+            await markAsRead(id);
+
+            // Show detail card (Using the premium modal system)
+            showNiceModal({
+                title: n.title,
+                message: n.message,
+                type: n.type || 'info',
+                confirmText: "Back to Home"
+            });
+
+            // Close dropdown if open
+            document.getElementById('notification-dropdown').classList.remove('active');
+        }
+
+        async function markAsRead(id) {
+            try {
+                const { error } = await _supabase
+                    .from('notifications')
+                    .update({ is_read: true })
+                    .eq('id', id);
+                if (error) throw error;
+                fetchNotifications();
+            } catch (err) {
+                console.error('Mark as read error:', err);
+            }
+        }
+
+        async function markAllAsRead() {
+            try {
+                const { data: { session } } = await _supabase.auth.getSession();
+                const { error } = await _supabase
+                    .from('notifications')
+                    .update({ is_read: true })
+                    .eq('user_id', session.user.id);
+                if (error) throw error;
+                fetchNotifications();
+            } catch (err) {
+                console.error('Mark all as read error:', err);
+            }
+        }
+
+        async function notifyAdmins(title, message, type = 'info') {
+            try {
+                const { data: admins, error: fetchError } = await _supabase
+                    .from('profiles')
+                    .select('id')
+                    .eq('role', 'admin');
+
+                if (fetchError || !admins) throw fetchError || new Error("No admins found");
+
+                const notificationsBatch = admins.map(admin => ({
+                    user_id: admin.id,
+                    title: title,
+                    message: message,
+                    type: type
+                }));
+
+                await _supabase.from('notifications').insert(notificationsBatch);
+            } catch (err) {
+                console.error('Failed to notify admins:', err);
+            }
+        }
 
         function showNiceModal({ title, message, type = 'info', confirmText = 'OK', cancelText = null }) {
             return new Promise((resolve) => {
@@ -1380,6 +1597,13 @@
         function closeLightbox() {
             document.getElementById('lightbox-modal').classList.remove('active');
             document.getElementById('lightbox-content').innerHTML = '';
+        }
+
+        window.onload = function () {
+            checkSession();
+            initSessionTimeout();
+            fetchNotifications();
+            setInterval(fetchNotifications, 60000);
         }
     </script>
 </body>

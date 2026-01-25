@@ -399,6 +399,66 @@
             transform: translateY(-1px);
             box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
+
+        /* --- NOTIFICATION DROPDOWN --- */
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 360px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            margin-top: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 100;
+        }
+
+        .notification-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .notification-item {
+            padding: 16px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .notification-item:hover {
+            background: #f8fafc;
+        }
+
+        .notification-item.unread {
+            background: #f5f3ff;
+        }
+
+        .notification-item.unread:hover {
+            background: #ede9fe;
+        }
+
+        #notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 18px;
+            height: 18px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 900;
+            border: 2px solid white;
+        }
     </style>
 </head>
 
@@ -545,6 +605,31 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-8">
+                    <div class="relative">
+                        <button onclick="toggleNotifications()"
+                            class="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-purple-600 hover:border-purple-600 transition-all shadow-sm">
+                            <i class="fa-solid fa-bell"></i>
+                            <span id="notification-badge" class="hidden">0</span>
+                        </button>
+
+                        <div id="notification-dropdown" class="notification-dropdown overflow-hidden">
+                            <div class="p-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+                                <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900">System
+                                    Alerts</h3>
+                                <button onclick="markAllAsRead()"
+                                    class="text-[8px] font-black uppercase tracking-widest text-purple-600 hover:underline">Clear
+                                    All</button>
+                            </div>
+                            <div id="notification-list" class="max-height-[400px] overflow-y-auto no-scrollbar">
+                                <!-- Notifications Injected Here -->
+                                <div class="p-8 text-center text-slate-400">
+                                    <i class="fa-solid fa-bell-slash text-2xl mb-3 opacity-20"></i>
+                                    <p class="text-[9px] font-black uppercase tracking-widest">No New Alerts</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="h-10 w-px bg-slate-200"></div>
                     <div class="flex items-center gap-4">
                         <div class="text-right">
@@ -1811,12 +1896,12 @@
 
                 if (updateError) throw updateError;
 
-                // 3. Send Email Notification
-                await sendEmailNotification(
-                    booking.profiles.email,
-                    booking.profiles.full_name,
-                    newStatus,
-                    booking.id
+                // 3. Send In-App Notification (Fixes Gmail Scope Error)
+                await sendInAppNotification(
+                    booking.user_id,
+                    "Booking Status Update",
+                    `Your booking #${booking.id} (${booking.service_type}) is now ${newStatus.toUpperCase()}.`,
+                    newStatus === 'cancelled' ? 'danger' : (newStatus === 'completed' ? 'success' : 'info')
                 );
 
                 // 4. Log Activity
@@ -1824,7 +1909,7 @@
 
                 await showNiceModal({
                     title: "Status Transmitted",
-                    message: `Booking updated to ${newStatus.toUpperCase()}. Notification sent to ${booking.profiles.email}.`,
+                    message: `Booking updated to ${newStatus.toUpperCase()}. In-app notification sent to client.`,
                     type: "success"
                 });
 
@@ -1859,17 +1944,17 @@
                     throw new Error("Client contact information unavailable.");
                 }
 
-                // trigger email sending manually
-                await sendEmailNotification(
-                    booking.profiles.email,
-                    booking.profiles.full_name,
-                    booking.status,
-                    booking.id
+                // trigger notification manually
+                await sendInAppNotification(
+                    booking.user_id,
+                    "Booking Alert",
+                    `RE-SENT: Your booking #${booking.id} is currently ${booking.status.toUpperCase()}.`,
+                    'info'
                 );
 
-                await showNiceModal({
-                    title: "Reminder Sent",
-                    message: `A status reminder notification for ${booking.profiles.email} has been dispatched.`,
+                showNiceModal({
+                    title: "Signal Dispatched",
+                    message: "An in-app alert has been manually re-sent to the client's dashboard.",
                     type: "success"
                 });
 
@@ -1883,35 +1968,7 @@
             }
         }
 
-        async function sendEmailNotification(email, name, status, bookingId) {
-            try {
-                // We typically use a Supabase Edge Function to securely call Resend
-                // --- TRIGGER CLIENT NOTIFICATION (EMAILJS) ---
-                const emailParams = {
-                    client_name: name,
-                    client_email: email,
-                    status: status.toUpperCase(),
-                    booking_id: bookingId
-                };
-
-                emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_STATUS_UPDATE, emailParams)
-                    .then(() => console.log('Client notified of status update'))
-                    .catch(err => console.error("EmailJS Error:", err));
-
-                if (error) {
-                    console.warn("Edge Function Error:", error);
-                    // Fallback log if function fails or isn't deployed yet
-                    console.log(`[Resend Mock] Would send email to ${email}: Status ${status}`);
-                    return;
-                }
-
-                console.log('Resend notification dispatched successfully');
-
-            } catch (err) {
-                console.error("Resend Dispatch Error:", err);
-                // We don't block the UI for email failures, just log it
-            }
-        }
+        // Send Email Notification function removed in favor of in-app notifications
 
         // --- Session Timeout (AFK Handler) ---
         function initSessionTimeout() {
@@ -2010,7 +2067,16 @@
                 // Determine new state
                 const nextState = !currentApproved;
 
-                // Update both approval and featured status to keep them in sync for 'Post/Hide' logic
+                // 1. Fetch review details to get user_id
+                const { data: review, error: fetchError } = await _supabase
+                    .from('reviews')
+                    .select('user_id, rating')
+                    .eq('id', id)
+                    .single();
+
+                if (fetchError) throw fetchError;
+
+                // 2. Update status
                 const { error } = await _supabase
                     .from('reviews')
                     .update({
@@ -2020,6 +2086,17 @@
                     .eq('id', id);
 
                 if (error) throw error;
+
+                // 3. Notify user
+                if (nextState) {
+                    await sendInAppNotification(
+                        review.user_id,
+                        "Review Published!",
+                        `Your ${review.rating}-star review has been approved and published to our website. Thank you for your feedback!`,
+                        'success'
+                    );
+                }
+
                 fetchReviews();
             } catch (error) {
                 console.error('Update status error:', error);
@@ -2779,7 +2856,7 @@
                 const cancelBtn = document.getElementById('modal-cancel');
 
                 // Reset
-                modal.className = 'modal-overlay active ' + `modal - ${type} `;
+                modal.className = 'modal-overlay active ' + `modal-${type}`;
                 titleEl.innerText = title;
                 msgEl.innerText = message;
                 confirmBtn.innerText = confirmText;
@@ -2793,7 +2870,6 @@
                 };
                 iconContainer.innerHTML = icons[type] || icons.info;
 
-                // Confirm button styling based on type
                 // Confirm button styling based on type
                 const btnClasses = {
                     success: 'btn-gradient-success',
@@ -2822,8 +2898,8 @@
             const isVideo = src.toLowerCase().match(/\.(mp4|mov|webm|ogg|m4v)$/) || src.includes('/video/upload/');
 
             container.innerHTML = isVideo
-                ? `< video src = "${src}" controls autoplay class="max-w-full max-h-full rounded-2xl shadow-2xl" ></video > `
-                : `< img src = "${src}" class="max-w-full max-h-full object-contain rounded-2xl shadow-2xl transition-all" >`;
+                ? `<video src="${src}" controls autoplay class="max-w-full max-h-full rounded-2xl shadow-2xl"></video>`
+                : `<img src="${src}" class="max-w-full max-h-full object-contain rounded-2xl shadow-2xl transition-all">`;
 
             modal.classList.add('active');
         }
@@ -2833,11 +2909,150 @@
             document.getElementById('lightbox-content').innerHTML = ''; // Stop video
         }
 
+        // --- IN-APP NOTIFICATION SYSTEM ---
+        let notifications = [];
+
+        function toggleNotifications() {
+            document.getElementById('notification-dropdown').classList.toggle('active');
+        }
+
+        async function fetchNotifications() {
+            try {
+                const { data: { session } } = await _supabase.auth.getSession();
+                if (!session) return;
+
+                const { data, error } = await _supabase
+                    .from('notifications')
+                    .select('*')
+                    .eq('user_id', session.user.id)
+                    .order('created_at', { ascending: false })
+                    .limit(10);
+
+                if (error) throw error;
+                notifications = data || [];
+                renderNotifications();
+            } catch (err) {
+                console.error('Fetch Notifications Error:', err);
+            }
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notification-list');
+            const badge = document.getElementById('notification-badge');
+            const unreadCount = notifications.filter(n => !n.is_read).length;
+
+            if (unreadCount > 0) {
+                badge.innerText = unreadCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            if (notifications.length === 0) {
+                list.innerHTML = `
+                    <div class="p-8 text-center text-slate-400">
+                        <i class="fa-solid fa-bell-slash text-2xl mb-3 opacity-20"></i>
+                        <p class="text-[9px] font-black uppercase tracking-widest">No New Alerts</p>
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = notifications.map(n => `
+                <div class="notification-item ${n.is_read ? '' : 'unread'}" onclick="openNotificationDetails(${n.id})">
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 shrink-0">
+                            <i class="fa-solid ${getNotificationIcon(n.type)} text-xs text-${getNotificationColor(n.type)}-500"></i>
+                        </div>
+                        <div class="flex-1 text-left">
+                            <p class="text-[10px] font-black uppercase tracking-tight text-slate-900 mb-0.5">${n.title}</p>
+                            <p class="text-[9px] font-medium text-slate-500 leading-tight mb-2 truncate">${n.message}</p>
+                            <p class="text-[7px] font-black text-slate-300 uppercase tracking-widest">${new Date(n.created_at).toLocaleString()}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getNotificationIcon(type) {
+            const icons = { info: 'fa-info-circle', success: 'fa-check-circle', warning: 'fa-exclamation-circle', danger: 'fa-times-circle' };
+            return icons[type] || icons.info;
+        }
+
+        function getNotificationColor(type) {
+            const colors = { info: 'blue', success: 'emerald', warning: 'amber', danger: 'rose' };
+            return colors[type] || colors.info;
+        }
+
+        async function openNotificationDetails(id) {
+            const n = notifications.find(notif => notif.id === id);
+            if (!n) return;
+
+            // Mark as read first
+            await markAsRead(id);
+
+            // Show detail card (Using the premium modal system)
+            showNiceModal({
+                title: n.title,
+                message: n.message,
+                type: n.type || 'info',
+                confirmText: "Back to Dashboard"
+            });
+
+            // Close dropdown if open
+            document.getElementById('notification-dropdown').classList.remove('active');
+        }
+
+        async function markAsRead(id) {
+            try {
+                const { error } = await _supabase
+                    .from('notifications')
+                    .update({ is_read: true })
+                    .eq('id', id);
+                if (error) throw error;
+                fetchNotifications();
+            } catch (err) {
+                console.error('Mark as read error:', err);
+            }
+        }
+
+        async function markAllAsRead() {
+            try {
+                const { data: { session } } = await _supabase.auth.getSession();
+                const { error } = await _supabase
+                    .from('notifications')
+                    .update({ is_read: true })
+                    .eq('user_id', session.user.id);
+                if (error) throw error;
+                fetchNotifications();
+            } catch (err) {
+                console.error('Mark all as read error:', err);
+            }
+        }
+
+        // Modified Notification Dispatcher (In-App instead of Email)
+        async function sendInAppNotification(userId, title, message, type = 'info') {
+            try {
+                const { error } = await _supabase.from('notifications').insert([{
+                    user_id: userId,
+                    title: title,
+                    message: message,
+                    type: type
+                }]);
+                if (error) throw error;
+                console.log('✅ In-app notification dispatched to user:', userId);
+            } catch (err) {
+                console.error('Failed to send in-app notification:', err);
+            }
+        }
+
         // Initial Load
         async function init() {
             try {
                 // checkSession and initSessionTimeout are already initialized
                 switchTab('accounts');
+                fetchNotifications();
+                // Check for new notifications every minute
+                setInterval(fetchNotifications, 60000);
             } catch (err) {
                 console.error("Initialization Error:", err);
             }
