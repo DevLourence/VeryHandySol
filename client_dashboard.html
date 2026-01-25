@@ -42,8 +42,8 @@
     <!-- Supabase Client Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- Email System: Powered by Resend (via Supabase Edge Functions) -->
-
+    <!-- Email System: Powered by EmailJS (Works without custom domain) -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <!-- ImageKit Upload Utility -->
     <script src="js/imagekit-upload.js"></script>
     <style>
@@ -642,6 +642,14 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdsbnpsdGV0cXhwdnhzb3F3ZXJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxOTkxMjgsImV4cCI6MjA4NDc3NTEyOH0.9frBI-FbIHf2q-ZzOGsGbEOkG7n8t5aCM6VP4RyRiWo';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // --- EMAILJS CONFIG (Update these with your keys) ---
+        const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY'; // Found in Account -> API Keys
+        const EMAILJS_SERVICE_ID = 'YOUR_SERVICE_ID'; // Found in Email Services
+        const EMAILJS_TEMPLATE_NEW_BOOKING = 'YOUR_ADMIN_BOOKING_TEMPLATE_ID';
+        const EMAILJS_TEMPLATE_NEW_REVIEW = 'YOUR_ADMIN_REVIEW_TEMPLATE_ID';
+
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+
         let currentUser = null;
 
         async function checkSession() {
@@ -1111,18 +1119,20 @@
 
                 if (error) throw error;
 
-                // --- TRIGGER ADMIN NOTIFICATION ---
+                // --- TRIGGER ADMIN NOTIFICATION (EMAILJS) ---
                 if (data && data[0]) {
                     const bookingId = data[0].id;
-                    _supabase.functions.invoke('send-booking-update', {
-                        body: {
-                            type: 'admin_new_booking',
-                            name: currentUser.full_name || 'Client',
-                            details: document.getElementById('service-type').value,
-                            booking_id: bookingId,
-                            to: 'admin'
-                        }
-                    }).catch(err => console.error("Admin Notification Error:", err));
+                    const emailParams = {
+                        client_name: currentUser.full_name || 'Client',
+                        service_type: document.getElementById('service-type').value,
+                        booking_id: bookingId,
+                        location: fullLocation,
+                        notes: document.getElementById('service-desc').value
+                    };
+
+                    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_NEW_BOOKING, emailParams)
+                        .then(() => console.log('Admin notified via EmailJS'))
+                        .catch(err => console.error("EmailJS Error:", err));
                 }
 
                 showNiceModal({
@@ -1247,21 +1257,17 @@
 
                 if (error) throw error;
 
-                // --- TRIGGER ADMIN NOTIFICATION ---
-                fetch('https://glnzltetqxpvxsoqwerz.supabase.co/functions/v1/send-booking-update', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    },
-                    body: JSON.stringify({
-                        type: 'admin_new_review',
-                        name: profile?.full_name || currentUser.full_name || 'Client',
-                        details: comment, // Sends the review comment
-                        booking_id: bookingId, // Can be null if general review
-                        to: 'admin'
-                    })
-                }).catch(console.error);
+                // --- TRIGGER ADMIN NOTIFICATION (EMAILJS) ---
+                const emailParams = {
+                    client_name: profile?.full_name || currentUser.full_name || 'Client',
+                    rating: currentRating,
+                    comment: comment,
+                    booking_id: bookingId || 'General'
+                };
+
+                emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_NEW_REVIEW, emailParams)
+                    .then(() => console.log('Admin notified of review'))
+                    .catch(err => console.error("EmailJS Review Error:", err));
 
                 // UI Feedback
                 showNiceModal({

@@ -38,7 +38,8 @@
     <!-- Supabase Client Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- Email System: Powered by Resend (via Supabase Edge Functions) -->
+    <!-- Email System: Powered by EmailJS (Works without custom domain) -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
@@ -1127,6 +1128,13 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdsbnpsdGV0cXhwdnhzb3F3ZXJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxOTkxMjgsImV4cCI6MjA4NDc3NTEyOH0.9frBI-FbIHf2q-ZzOGsGbEOkG7n8t5aCM6VP4RyRiWo';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // --- EMAILJS CONFIG (Update these with your keys) ---
+        const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY';
+        const EMAILJS_SERVICE_ID = 'YOUR_SERVICE_ID';
+        const EMAILJS_TEMPLATE_STATUS_UPDATE = 'YOUR_CLIENT_STATUS_TEMPLATE_ID';
+
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+
         // --- VISUAL ANALYTICS SYSTEM ---
         let growthChartInstance = null;
 
@@ -1878,14 +1886,17 @@
         async function sendEmailNotification(email, name, status, bookingId) {
             try {
                 // We typically use a Supabase Edge Function to securely call Resend
-                const { data, error } = await _supabase.functions.invoke('send-booking-update', {
-                    body: {
-                        to: email,
-                        name: name,
-                        status: status,
-                        booking_id: bookingId
-                    }
-                });
+                // --- TRIGGER CLIENT NOTIFICATION (EMAILJS) ---
+                const emailParams = {
+                    client_name: name,
+                    client_email: email,
+                    status: status.toUpperCase(),
+                    booking_id: bookingId
+                };
+
+                emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_STATUS_UPDATE, emailParams)
+                    .then(() => console.log('Client notified of status update'))
+                    .catch(err => console.error("EmailJS Error:", err));
 
                 if (error) {
                     console.warn("Edge Function Error:", error);
