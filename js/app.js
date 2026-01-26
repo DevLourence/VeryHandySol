@@ -458,7 +458,13 @@ async function fetchPublicReviews() {
     if (!container) return;
     container.innerHTML = Array(3).fill(0).map(() => `<div class="h-64 rounded-[32px] skeleton"></div>`).join('');
     try {
-        const { data, error } = await _supabase.from('reviews').select('*, profiles:user_id (full_name)').eq('is_approved', true).order('created_at', { ascending: false }).limit(6);
+        const { data, error } = await _supabase
+            .from('reviews')
+            .select('*, profiles:user_id (full_name)')
+            .eq('is_approved', true)
+            .order('is_featured', { ascending: false })
+            .order('created_at', { ascending: false })
+            .limit(6);
         if (error) throw error;
         if (!data || data.length === 0) {
             container.innerHTML = `<div class="col-span-full text-center py-12"><p class="text-slate-400 text-sm italic">"Be the first to leave a review!"</p></div>`;
