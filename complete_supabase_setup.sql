@@ -92,9 +92,23 @@ BEGIN
 END;
 $$;
 
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Helper for RLS to prevent recursion
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1
+    FROM public.profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+END;
+$$;
 
 -- 4. SECURITY (RLS)
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -104,24 +118,24 @@ ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.portfolio ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Admin full access profiles" ON public.profiles FOR ALL USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
+CREATE POLICY "Admin full access profiles" ON public.profiles FOR ALL USING (public.is_admin());
 CREATE POLICY "Public profiles viewable" ON public.profiles FOR SELECT USING (true);
 CREATE POLICY "Users update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
 
 CREATE POLICY "Public view services" ON public.services FOR SELECT USING (true);
-CREATE POLICY "Admin manage services" ON public.services FOR ALL USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
+CREATE POLICY "Admin manage services" ON public.services FOR ALL USING (public.is_admin());
 
 CREATE POLICY "Public view branches" ON public.branches FOR SELECT USING (true);
-CREATE POLICY "Admin manage branches" ON public.branches FOR ALL USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
+CREATE POLICY "Admin manage branches" ON public.branches FOR ALL USING (public.is_admin());
 
 CREATE POLICY "Public view portfolio" ON public.portfolio FOR SELECT USING (true);
-CREATE POLICY "Admin manage portfolio" ON public.portfolio FOR ALL USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
+CREATE POLICY "Admin manage portfolio" ON public.portfolio FOR ALL USING (public.is_admin());
 
-CREATE POLICY "Admin manage all bookings" ON public.bookings FOR ALL USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
+CREATE POLICY "Admin manage all bookings" ON public.bookings FOR ALL USING (public.is_admin());
 CREATE POLICY "Users view own bookings" ON public.bookings FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users create own bookings" ON public.bookings FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Admin manage all reviews" ON public.reviews FOR ALL USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
+CREATE POLICY "Admin manage all reviews" ON public.reviews FOR ALL USING (public.is_admin());
 CREATE POLICY "Public view approved reviews" ON public.reviews FOR SELECT USING (is_approved = true OR auth.uid() = user_id);
 CREATE POLICY "Users create reviews" ON public.reviews FOR INSERT WITH CHECK (auth.uid() = user_id);
 
