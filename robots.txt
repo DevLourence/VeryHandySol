@@ -4,4 +4,4 @@ Disallow: /client_dashboard.html
 Disallow: /admin_dashboard.html
 Disallow: /reset_password.html
 
-Sitemap: https://veryhandyhomeservice.com/sitemap.xml
+Sitemap: https://veryhandysolution.com/sitemap.xml
