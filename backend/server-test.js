@@ -14,7 +14,7 @@ const users = [
     {
         id: 'admin-1769143511895',
         name: 'VH Admin',
-        email: 'veryhandyhomeservices1@gmail.com',
+        email: 'veryhandysolution@gmail.com',
         password: '$2a$10$aMSpcMf84wPp2pkNY.DcrOKFGmM54glv3ZSYSBkG0ZaJkgxInfzIe',
         address: 'Admin Office',
         age: 30,
