@@ -26,7 +26,7 @@ app.use('/api/reviews', reviewRoutes);
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'OK',
-        message: 'VH Autoglass MERN API is running',
+        message: 'VeryHandy Solution API is running',
         timestamp: new Date().toISOString(),
         mongodb: process.env.MONGODB_URI ? 'Configured' : 'Not configured',
         email: process.env.EMAIL_USER || 'Not configured'
@@ -36,7 +36,7 @@ app.get('/api/health', (req, res) => {
 // Root endpoint
 app.get('/', (req, res) => {
     res.json({
-        message: 'Welcome to VH Autoglass API',
+        message: 'Welcome to VeryHandy Solution API',
         version: '1.0.0',
         endpoints: {
             health: '/api/health',
@@ -79,7 +79,7 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
     console.log(`\n✅ ========================================`);
-    console.log(`🚀 VH Autoglass MERN API`);
+    console.log(`🚀 VeryHandy Solution API`);
     console.log(`📡 Server: http://localhost:${PORT}`);
     console.log(`📧 Email Service: Resend (API)`);
     console.log(`🗄️  MongoDB: ${process.env.MONGODB_URI ? 'Configured' : 'Not configured'}`);

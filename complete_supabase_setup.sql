@@ -145,7 +145,7 @@ INSERT INTO public.services (name, description, price_fee) VALUES
 ('Rock Chip Repair', 'Professional resin injection to stop cracks.', '$45.00');
 
 INSERT INTO public.branches (name, address) VALUES
-('VH Hub - Mobile Unit', 'Roaming Service Area - Red Deer & Surrounding');
+('VeryHandy Solution Hub - Mobile Unit', 'Roaming Service Area - Red Deer & Surrounding');
 
 INSERT INTO public.portfolio (title, image_url) VALUES
 ('Tesla Model 3 Restoration', 'https://images.unsplash.com/photo-1560958089-b8a1929cea89');

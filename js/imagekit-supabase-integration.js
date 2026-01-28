@@ -18,7 +18,7 @@ async function uploadToImageKit(file) {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('fileName', file.name);
-    formData.append('folder', '/vh-autoglass');
+    formData.append('folder', '/veryhandy');
 
     const response = await fetch(`${IMAGEKIT_CONFIG.urlEndpoint}api/v1/files/upload`, {
         method: 'POST',
@@ -51,7 +51,7 @@ async function createBookingWithPhotos() {
         .from('bookings')
         .insert([{
             user_id: currentUser.id,
-            service_type: 'Windshield Replacement',
+            service_type: 'Drywall Repair',
             photo_urls: photoUrls,  // ImageKit URLs stored in Supabase
             location: 'Downtown',
             status: 'pending'
@@ -80,10 +80,10 @@ async function addPortfolioImage() {
     const { data, error } = await _supabase
         .from('portfolio')
         .insert([{
-            title: 'Windshield Replacement Project',
-            description: 'Professional windshield replacement',
+            title: 'Drywall Repair Project',
+            description: 'Professional drywall repair and finishing',
             image_url: imageUrl,  // ImageKit URL
-            service_type: 'Auto Glass',
+            service_type: 'Home Repair',
             is_featured: true
         }])
         .select();

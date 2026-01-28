@@ -1,10 +1,10 @@
 /* --- CORE UTILITIES --- */
 :root {
-    --brand-primary: #5b21b6;
-    --brand-secondary: #f59e0b;
+    --brand-primary: #2563eb;
+    --brand-secondary: #60a5fa;
     --glass-bg: rgba(255, 255, 255, 0.7);
     --glass-border: rgba(255, 255, 255, 0.5);
-    --premium-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+    --premium-shadow: 0 25px 50px -12px rgba(37, 99, 235, 0.1);
 }
 
 .view {
@@ -34,7 +34,7 @@
 }
 
 .text-glow {
-    text-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+    text-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
 }
 
 /* --- PREMIUM TEXTURES --- */
@@ -95,7 +95,7 @@
 
 /* --- HERO & LANDING --- */
 #hero {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../image/hero_bg_clean.png');
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../image/hero_hq.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -128,15 +128,15 @@
 
 @keyframes pulse-purple {
     0% {
-        box-shadow: 0 0 0 0 rgba(91, 33, 182, 0.7);
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
     }
 
     70% {
-        box-shadow: 0 0 0 15px rgba(91, 33, 182, 0);
+        box-shadow: 0 0 0 15px rgba(37, 99, 235, 0);
     }
 
     100% {
-        box-shadow: 0 0 0 0 rgba(91, 33, 182, 0);
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
     }
 }
 
@@ -152,8 +152,8 @@
 
 .card-premium:hover {
     transform: translateY(-12px) scale(1.02);
-    box-shadow: 0 40px 80px -15px rgba(91, 33, 182, 0.15);
-    border-color: rgba(91, 33, 182, 0.2);
+    box-shadow: 0 40px 80px -15px rgba(37, 99, 235, 0.15);
+    border-color: rgba(37, 99, 235, 0.2);
 }
 
 .badge-float {
@@ -220,7 +220,7 @@
 .reset-otp-field:focus {
     border-color: #9333ea !important;
     background: #ffffff !important;
-    box-shadow: 0 0 0 8px rgba(147, 51, 234, 0.1) !important;
+    box-shadow: 0 0 0 8px rgba(37, 99, 235, 0.1) !important;
     transform: scale(1.05);
 }
 
@@ -371,11 +371,11 @@
 
 /* --- FLOATING CONTACT --- */
 .floating-contact {
-    box-shadow: 0 20px 40px -10px rgba(91, 33, 182, 0.4);
+    box-shadow: 0 20px 40px -10px rgba(37, 99, 235, 0.4);
 }
 
 .floating-contact:hover {
-    box-shadow: 0 30px 60px -12px rgba(91, 33, 182, 0.5);
+    box-shadow: 0 30px 60px -12px rgba(37, 99, 235, 0.5);
 }
 
 /* --- STATISTICS BAR --- */
@@ -409,7 +409,7 @@
     background: var(--brand-primary);
     color: white;
     border-color: var(--brand-primary);
-    box-shadow: 0 10px 20px -5px rgba(91, 33, 182, 0.3);
+    box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.3);
 }
 
 .pagination-btn:hover:not(.active) {

@@ -1,4 +1,4 @@
-// ImageKit Configuration for VH Autoglass
+// ImageKit Configuration for VeryHandy Solution
 // Replace with your actual ImageKit credentials
 
 const IMAGEKIT_CONFIG = {
@@ -9,7 +9,7 @@ const IMAGEKIT_CONFIG = {
 
 // Upload Configuration
 const UPLOAD_CONFIG = {
-    folder: '/vh-autoglass',
+    folder: '/veryhandy',
     useUniqueFileName: true,
     tags: ['booking', 'portfolio'],
     isPrivateFile: false,

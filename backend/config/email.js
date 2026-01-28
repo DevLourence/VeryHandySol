@@ -8,7 +8,7 @@ const https = require('https');
 const sendEmail = async ({ to, subject, html }) => {
   console.log(`📧 Attempting to send email to: ${to} via Resend...`);
   const payload = {
-    from: 'VH Autoglass <onboarding@resend.dev>',
+    from: 'VeryHandy Solution <onboarding@resend.dev>',
     to: Array.isArray(to) ? to : [to],
     subject: subject,
     html: html
@@ -66,24 +66,24 @@ const sendEmail = async ({ to, subject, html }) => {
 const sendOTPEmail = async (email, otp, name = 'User') => {
   const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden;">
-        <div style="background: linear-gradient(135deg, #5b21b6 0%, #f59e0b 100%); color: white; padding: 20px; text-align: center;">
-          <h1 style="margin: 0;">VH Autoglass</h1>
+        <div style="background: #2563eb; color: white; padding: 20px; text-align: center;">
+          <h1 style="margin: 0;">VeryHandy Solution</h1>
         </div>
         <div style="padding: 30px; background: #ffffff;">
           <h2>Hello ${name},</h2>
           <p>Your verification code is:</p>
-          <div style="background: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
-            <span style="font-size: 32px; font-weight: bold; color: #5b21b6; letter-spacing: 5px;">${otp}</span>
+          <div style="background: #f1f5f9; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+            <span style="font-size: 32px; font-weight: bold; color: #2563eb; letter-spacing: 5px;">${otp}</span>
           </div>
           <p>This code will expire in ${process.env.OTP_EXPIRY_MINUTES || 10} minutes.</p>
           <p>If you didn't request this, please ignore this email.</p>
         </div>
         <div style="background: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #6b7280;">
-          © 2026 VH Autoglass. All rights reserved.
+          © 2026 VeryHandy Solution. All rights reserved.
         </div>
       </div>
     `;
-  return sendEmail({ to: email, subject: 'Email Verification - VH Autoglass', html });
+  return sendEmail({ to: email, subject: 'Email Verification - VeryHandy Solution', html });
 };
 
 const sendBookingUpdateEmail = async (email, name, bookingId, status) => {
@@ -97,7 +97,7 @@ const sendBookingUpdateEmail = async (email, name, bookingId, status) => {
   const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden;">
         <div style="background: #1e293b; color: white; padding: 20px; text-align: center;">
-          <h1 style="margin: 0;">VH Autoglass</h1>
+          <h1 style="margin: 0;">VeryHandy Solution</h1>
         </div>
         <div style="padding: 30px; background: #ffffff;">
           <h2>Booking Status Updated</h2>
@@ -107,14 +107,11 @@ const sendBookingUpdateEmail = async (email, name, bookingId, status) => {
             ${status}
           </div>
           <p>You can check your dashboard for more details.</p>
-          <p>Thank you for choosing VH Autoglass!</p>
-        </div>
-        <div style="background: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #6b7280;">
-          © 2026 VH Autoglass. All rights reserved.
+          © 2026 VeryHandy Solution. All rights reserved.
         </div>
       </div>
     `;
-  return sendEmail({ to: email, subject: `Booking Status: ${status.toUpperCase()} - VH Autoglass`, html });
+  return sendEmail({ to: email, subject: `Booking Status: ${status.toUpperCase()} - VeryHandy Solution`, html });
 };
 
 // Verify Resend API key on startup

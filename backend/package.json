@@ -1,7 +1,7 @@
 {
   "name": "vh-autoglass-backend",
   "version": "1.0.0",
-  "description": "VH Autoglass MERN Stack Backend",
+  "description": "VeryHandy Solution Backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

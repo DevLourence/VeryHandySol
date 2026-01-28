@@ -1,6 +1,6 @@
 // ============================================
 // IMAGEKIT UPLOAD UTILITY
-// Professional media hosting for VH Autoglass
+// Professional media hosting for VeryHandy Solution
 // ============================================
 
 // ImageKit Configuration
